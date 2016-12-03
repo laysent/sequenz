@@ -1,4 +1,22 @@
 import * as sequenz from '../src/index';
+import { identity, empty } from './utils';
+
+describe('functions:', () => {
+  it('should keep only the functions', () => {
+    const input = { a: 'a', b: identity, c: /x/, d: empty };
+    const actual = sequenz.object(sequenz.functions())(input);
+    expect(actual).toEqual({ b: identity, d: empty });
+  });
+  it('should not include inherited functions', () => {
+    function Foo() {
+      this.a = identity;
+      this.b = 'b';
+    }
+    Foo.prototype.c = empty;
+    const actual = sequenz.object(sequenz.functions())(new Foo());
+    expect(actual).toEqual({ a: identity });
+  });
+});
 
 describe('pickBy:', () => {
   it('should work with a predicate argument', () => {

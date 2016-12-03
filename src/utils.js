@@ -18,3 +18,5 @@ export const isPromise = x => x instanceof Promise;
 export const isNumber = x => (x === +x);
 export const isObject = x => x instanceof Object && x !== null;
 export const isFunction = x => typeof x === 'function';
+const isLength = value => isNumber(value) && value >= 0 && value % 1 === 0 && value < Infinity;
+export const isArrayLike = x => x != null && !isFunction(x) && isLength(x.length);

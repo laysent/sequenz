@@ -468,6 +468,158 @@ describe('filter:', () => {
   });
 });
 
+describe('first:', () => {
+  it('should return the first element', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.first())(input);
+    expect(actual).toBe(1);
+  });
+  it('should return `undefined` for empty array', () => {
+    const input = [];
+    const actual = sequenz.list(sequenz.first())(input);
+    expect(actual).toBeUndefined();
+  });
+});
+
+describe('firstOrDefault:', () => {
+  it('should return the first element', () => {
+    const input = [1, 2, 3];
+    const value = { };
+    const actual = sequenz.list(sequenz.firstOrDefault(value))(input);
+    expect(actual).toBe(1);
+  });
+  it('should return default value for empty array', () => {
+    const input = [];
+    const value = { };
+    const actual = sequenz.list(sequenz.firstOrDefault(value))(input);
+    expect(actual).toBe(value);
+  });
+});
+
+describe('findWhere:', () => {
+  it('should find first element where given properties match', () => {
+    const properties = { x: 1, y: 2 };
+    const expected = { x: 1, y: 2, z: 3 };
+    const input = [
+      { x: 1, y: 1, z: 1 },
+      { x: 2, y: 2, z: 2 },
+      expected,
+      { x: 3, y: 2, z: 1 },
+    ];
+    const actual = sequenz.list(sequenz.findWhere(properties))(input);
+    expect(actual).toBe(expected);
+  });
+  it('should return `undefined` if no match found', () => {
+    const properties = { x: 1, y: 2 };
+    const input = [
+      { x: 1, y: 1, z: 1 },
+      { x: 2, y: 2, z: 2 },
+      { x: 3, y: 2, z: 1 },
+    ];
+    const actual = sequenz.list(sequenz.findWhere(properties))(input);
+    expect(actual).toBeUndefined();
+  });
+});
+
+describe('flatten:', () => {
+  it('should flatten `arguments` objects', () => {
+    (function () {
+      const input = [1, 2, 3, arguments]; // eslint-disable-line
+      const actual = sequenz.list(sequenz.flatten())(input);
+      expect(actual).toEqual([1, 2, 3, 'a', 'b', 'c']);
+    }('a', 'b', 'c'));
+  });
+  it('should support flattening of nested arrays', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flatten())(input);
+    expect(actual).toEqual([1, 2, [3, [4]], 5]);
+  });
+  it('should work with empty arrays', () => {
+    const input = [[], [[]], [[], [[[]]]]];
+    const actual = sequenz.list(sequenz.flatten())(input);
+    expect(actual).toEqual([[], [], [[[]]]]);
+  });
+  it('should not flatten string', () => {
+    const input = ['flatten', 'string'];
+    const actual = sequenz.list(sequenz.flatten())(input);
+    expect(actual).toEqual(input);
+  });
+});
+
+describe('flattenDeep:', () => {
+  it('should flatten `arguments` objects', () => {
+    (function () {
+      const input = [1, 2, 3, arguments]; // eslint-disable-line
+      const actual = sequenz.list(sequenz.flattenDeep())(input);
+      expect(actual).toEqual([1, 2, 3, 'a', 'b', 'c']);
+    }('a', 'b', 'c'));
+  });
+  it('should support flattening of nested arrays', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flattenDeep())(input);
+    expect(actual).toEqual([1, 2, 3, 4, 5]);
+  });
+  it('should work with empty arrays', () => {
+    const input = [[], [[]], [[], [[[]]]]];
+    const actual = sequenz.list(sequenz.flattenDeep())(input);
+    expect(actual).toEqual([]);
+  });
+  it('should not flatten string', () => {
+    const input = ['flatten', 'string'];
+    const actual = sequenz.list(sequenz.flattenDeep())(input);
+    expect(actual).toEqual(input);
+  });
+});
+
+describe('flattenDepth:', () => {
+  it('should flatten `arguments` objects', () => {
+    (function () {
+      const input = [1, 2, 3, arguments]; // eslint-disable-line
+      const actual = sequenz.list(sequenz.flattenDepth(1))(input);
+      expect(actual).toEqual([1, 2, 3, 'a', 'b', 'c']);
+    }('a', 'b', 'c'));
+  });
+  it('should support flattening of nested arrays', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flattenDepth(2))(input);
+    expect(actual).toEqual([1, 2, 3, [4], 5]);
+  });
+  it('should work with empty arrays', () => {
+    const input = [[], [[]], [[], [[[]]]]];
+    const actual = sequenz.list(sequenz.flattenDepth(2))(input);
+    expect(actual).toEqual([[[]]]);
+  });
+  it('should not flatten string', () => {
+    const input = ['flatten', 'string'];
+    const actual = sequenz.list(sequenz.flattenDepth(2))(input);
+    expect(actual).toEqual(input);
+  });
+  it('should use a default `depth` of `1`', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flattenDepth())(input);
+    expect(actual).toEqual([1, 2, [3, [4]], 5]);
+  });
+  it('should treat a `depth` of < `1` as a shallow clone', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flattenDepth(-1))(input);
+    expect(actual).toEqual(input);
+    expect(actual).not.toBe(input);
+  });
+  it('should coerce `depth` to an integer', () => {
+    const input = [1, [2, [3, [4]], 5]];
+    const actual = sequenz.list(sequenz.flattenDepth(2.8))(input);
+    expect(actual).toEqual([1, 2, 3, [4], 5]);
+  });
+});
+
+describe('fromPairs:', () => {
+  it('should accept a two dimensional array and returns object', () => {
+    const input = [['a', [1]], ['b', 2]];
+    const actual = sequenz.list(sequenz.fromPairs())(input);
+    expect(actual).toEqual({ a: [1], b: 2 });
+  });
+});
+
 describe('skip:', () => {
   const input = [1, 2, 3];
   it('should skip the first two elements', () => {

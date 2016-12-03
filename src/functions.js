@@ -1,3 +1,3 @@
-import filter from './filter';
+import pickBy from './pickBy';
 import { isFunction } from './utils';
-export default () => filter(isFunction);
+export default () => pickBy(isFunction);
