@@ -1,12 +1,24 @@
 import reduce from './reduce';
 import { identity, isNumber } from './utils';
 
-export default (iteratee = identity) => subscribe =>
-  (reduce((min, num) => {
-    const rank = iteratee(num);
-    if (!isNumber(rank)) return min;
-    if (min.rank > rank) {
+/**
+ * Computes the minimum value of `sequenz`, where rank of each element is calculated using
+ * given `iteratee`. If `sequenz` is empty, `undefined` will be returned.
+ *
+ * @param {function(any,any):number} [iteratee=identity] Function that used to calculate rank of
+ * each element. The rank will then be used to determine the minimum element in `sequenz`.
+ */
+const min = (iteratee = identity) => subscribe => {
+  let found = false;
+  const ret = (reduce((result, num, key) => {
+    const rank = iteratee(num, key);
+    if (!isNumber(rank)) return result;
+    found = true;
+    if (result.rank > rank) {
       return { rank, value: num };
     }
-    return min;
-  }, { rank: Infinity, value: Infinity })(subscribe)).value;
+    return result;
+  }, { rank: Infinity, value: Infinity })(subscribe));
+  return found ? ret.value : undefined;
+};
+export default min;

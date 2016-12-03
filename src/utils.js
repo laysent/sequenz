@@ -1,5 +1,13 @@
 export const empty = () => { };
+/**
+ * Identity function that accepts one argument and returns the exact same argument.
+ *
+ * @param {T} x - Any value.
+ * @return {T} The exact same result as `x`.
+ */
 export const identity = x => x;
+export const truthy = () => true;
+export const falsey = () => false;
 export const equal = (x, y) => (x === y ? 0 : 1);
 export const not = (f, numOfParams) => {
   switch (numOfParams) {

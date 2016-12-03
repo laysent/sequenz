@@ -1,2 +1,7 @@
 import flattenDepth from './flattenDepth';
-export default () => flattenDepth(Infinity);
+
+/**
+ * Flatten elements in `sequenz` as much as possible.
+ */
+const flattenDeep = () => flattenDepth(Infinity);
+export default flattenDeep;

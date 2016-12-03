@@ -1,6 +1,11 @@
 import from from './from';
 
-export default (...sequenzs) => subscribe => (onNext) => {
+/**
+ * @param {...any} sequenzs - A list of elements, each will be iterated over and append to
+ * original `sequenz`. If the given element is a function, it will be considered as a `sequenz`;
+ * otherwise it will be converted to `sequenz` using `sequenz.from` method.
+ */
+const concat = (...sequenzs) => subscribe => (onNext) => {
   const subscriptions = [subscribe].concat(
     sequenzs.map(seq => (typeof seq === 'function' ? seq : from(seq))));
   let count = -1;
@@ -10,3 +15,5 @@ export default (...sequenzs) => subscribe => (onNext) => {
   }
   return true;
 };
+
+export default concat;

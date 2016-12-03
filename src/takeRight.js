@@ -1,5 +1,5 @@
 export default (num = 1) => subscribe => onNext => {
-  const length = num || 0;
+  const length = Math.floor(num) || 0;
   if (length < 1) return true;
   const cache = length > 200 ? [] : new Array(length);
   let index = -1;

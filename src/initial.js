@@ -1,2 +1,6 @@
 import skipRight from './skipRight';
-export default () => skipRight(1);
+/**
+ * Creates a new `sequenz` with all but the last element of given `sequenz`.
+ */
+const initial = () => skipRight(1);
+export default initial;

@@ -1,7 +1,14 @@
 import reduce from './reduce';
 import { isString } from './utils';
 
-export default iteratee => {
+/**
+ * Consume the `sequenz`, use `iteratee` to generate `key` for each element, and returns an object
+ * with an index of each element.
+ *
+ * @param {function(any):string|string} iteratee - Function that returns the `key` of each element,
+ * or `property` string that will be used to get `key` from each element.
+ */
+const indexBy = iteratee => {
   const mapFn = isString(iteratee) ? element => element[iteratee] : iteratee;
   return subscribe => reduce(
     (previous, element) => {
@@ -19,3 +26,5 @@ export default iteratee => {
     {}
   )(subscribe);
 };
+
+export default indexBy;

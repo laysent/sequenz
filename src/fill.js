@@ -1,4 +1,14 @@
-export default (value, start, end) => {
+/**
+ * Fills elements in a `sequenz` with given `value` from `start` up to, but not including, `end`.
+ *
+ * **[NOTICE]**: The `sequenz` should have keys that are `number`s, as key will be used to compare
+ * if given element should be replaced by `value`.
+ *
+ * @param {any} value - Value to fill
+ * @param {number} [start=0] - Start index
+ * @param {number} [end=Infinity] - End index
+ */
+const fill = (value, start, end) => {
   if (start === undefined && end === undefined) {
     return subscribe => onNext => subscribe((_, key) => onNext(value, key));
   }
@@ -13,3 +23,4 @@ export default (value, start, end) => {
       return onNext(_, key);
     });
 };
+export default fill;

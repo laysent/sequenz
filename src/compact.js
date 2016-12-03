@@ -1,2 +1,7 @@
 import filter from './filter';
-export default () => filter(x => !!x);
+/**
+ * Remove all falsey values.
+ * In JavaScript, `false`, `null`, `undefined`, `0`, `''` and `NaN` are considered falsey values.
+ */
+const compact = () => filter(x => !!x);
+export default compact;

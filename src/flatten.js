@@ -1,2 +1,7 @@
 import flattenDepth from './flattenDepth';
-export default () => flattenDepth(1);
+
+/**
+ * Flatten elements in `sequenz` one level deep.
+ */
+const flatten = () => flattenDepth(1);
+export default flatten;

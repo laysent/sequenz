@@ -3,8 +3,10 @@
 import list from './list';
 import object from './object';
 import string from './string';
+import fromObject from './fromObject';
 import fromIterable from './fromIterable';
-export { list, object, string, fromIterable };
+import toList from './toList';
+export { list, object, string, fromObject, fromIterable, toList };
 
 /* ---------- Transforms ---------- */
 
