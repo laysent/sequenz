@@ -431,6 +431,43 @@ describe('remove:', () => {
   });
 });
 
+describe('reverse:', () => {
+  it('should reverse the `sequenz`', () => {
+    const input = [1, 2, 3, 4];
+    const actual = sequenz.list(sequenz.reverse())(input);
+    expect(actual).toEqual([4, 3, 2, 1]);
+  });
+});
+
+describe('slice:', () => {
+  const input = [1, 2, 3, 4, 5];
+  it('should copy the `sequenz` if none param is provided', () => {
+    const actual = sequenz.list(sequenz.slice())(input);
+    expect(actual).toEqual(input);
+    expect(actual).not.toBe(input);
+  });
+  it('should work with a positive `start`', () => {
+    const actual = sequenz.list(sequenz.slice(1))(input);
+    expect(actual).toEqual(input.slice(1));
+  });
+  it('should work with a `start` >= `length` of sequenz', () => {
+    const actual = sequenz.list(sequenz.slice(10))(input);
+    expect(actual).toEqual([]);
+  });
+  it('should work with a `start` >= `end`', () => {
+    const actual = sequenz.list(sequenz.slice(2, 1))(input);
+    expect(actual).toEqual([]);
+  });
+  it('should work with a positive `end`', () => {
+    const actual = sequenz.list(sequenz.slice(1, 3))(input);
+    expect(actual).toEqual(input.slice(1, 3));
+  });
+  it('should work with `end` >= `length`', () => {
+    const actual = sequenz.list(sequenz.slice(1, 10))(input);
+    expect(actual).toEqual(input.slice(1));
+  });
+});
+
 describe('skip:', () => {
   const input = [1, 2, 3];
   it('should skip the first two elements', () => {
@@ -456,14 +493,6 @@ describe('skip:', () => {
   });
   it('should have an alias `drop`', () => {
     expect(sequenz.drop).toBe(sequenz.skip);
-  });
-});
-
-describe('reverse:', () => {
-  it('should reverse the `sequenz`', () => {
-    const input = [1, 2, 3, 4];
-    const actual = sequenz.list(sequenz.reverse())(input);
-    expect(actual).toEqual([4, 3, 2, 1]);
   });
 });
 
@@ -518,6 +547,44 @@ describe('skipRightWhile:', () => {
     sequenz.list(sequenz.skipRightWhile(callback))(input);
     expect(callback).toHaveBeenCalledTimes(4);
     expect(callback.calls.allArgs()).toEqual(input.map((value, i) => [value, i]));
+  });
+});
+
+describe('sortedUniq', () => {
+  it('should return uniq elements, where `iteratee` will be invoked before compare', () => {
+    const input = [1, 2, 2, 3, 3, 3];
+    const actual = sequenz.list(sequenz.sortedUniq())(input);
+    expect(actual).toEqual([1, 2, 3]);
+  });
+});
+
+describe('sortedUniqBy', () => {
+  it('should return uniq elements, where `iteratee` will be invoked before compare', () => {
+    const input = [0, 5, 1, 6, 7, 2, 12, 3];
+    const actual = sequenz.list(sequenz.sortedUniqBy(x => x % 5))(input);
+    expect(actual).toEqual([0, 1, 7, 3]);
+  });
+  it('should provide correct arguments to `iteratee`', () => {
+    const input = [0, 5];
+    const iteratee = jasmine.createSpy('iteratee', x => x).and.callThrough();
+    sequenz.list(sequenz.sortedUniqBy(iteratee))(input);
+    expect(iteratee.calls.allArgs()).toEqual([
+      [0, 0],
+      [5, 1],
+    ]);
+  });
+});
+
+describe('tail:', () => {
+  it('should exclude first element', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.tail())(input);
+    expect(actual).toEqual(input.slice(1));
+  });
+  it('should return empty array when input array is empty', () => {
+    const input = [];
+    const actual = sequenz.list(sequenz.tail())(input);
+    expect(actual).toEqual([]);
   });
 });
 

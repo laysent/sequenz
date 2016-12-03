@@ -533,3 +533,43 @@ describe('reduce:', () => {
     ]);
   });
 });
+
+describe('size:', () => {
+  it('should return the size of `sequenz`', () => {
+    const input = [1, 2, 3];
+    const object = { a: 1, b: 2, c: 3 };
+    let actual = sequenz.list(sequenz.size())(input);
+    expect(actual).toBe(input.length);
+    actual = sequenz.object(sequenz.size())(object);
+    expect(actual).toBe(Object.keys(object).length);
+  });
+});
+
+describe('some:', () => {
+  it('should return `false` if `predicate` returns falsey for all elements', () => {
+    const input = [true, 1, 'a'];
+    const actual = sequenz.list(sequenz.some(x => !x))(input);
+    expect(actual).toBe(false);
+  });
+  it('should return `false` for empty collections', () => {
+    const input = [];
+    const actual = sequenz.list(sequenz.some(() => true))(input);
+    expect(actual).toBe(false);
+  });
+  it('should return `true` as soon as `predicate` returns truthy', () => {
+    const input = [1, 2, 3, 4, 5];
+    const callback = jasmine.createSpy('callback').and.returnValue(true);
+    const actual = sequenz.list(sequenz.some(callback))(input);
+    expect(actual).toBe(true);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+  it('should work with collections of `undefined` values (test in IE < 9)', () => {
+    const actual = sequenz.list(sequenz.some(x => x))([undefined, undefined, undefined]);
+    expect(actual).toBe(false);
+  });
+  it('should use `identity` when `predicate` is undefined', () => {
+    const input = [0];
+    expect(sequenz.list(sequenz.some())(input)).toBe(false);
+    expect(sequenz.list(sequenz.some(undefined))(input)).toBe(false);
+  });
+});

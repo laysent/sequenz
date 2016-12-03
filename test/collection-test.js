@@ -65,3 +65,37 @@ describe('pluck:', () => {
     expect(actual).toEqual(['anna', 'ben', undefined, 'chris']);
   });
 });
+
+describe('scan:', () => {
+  const input = [1, 2, 3];
+  it('should accumulate each element with previous result to create new element', () => {
+    const actual = sequenz.list(sequenz.scan((prev, curr) => prev + curr, -1))(input);
+    expect(actual).toEqual([0, 2, 5]);
+  });
+  it('should use first element directly, if no initial value provided', () => {
+    const actual = sequenz.list(sequenz.scan((prev, curr) => prev + curr))(input);
+    expect(actual).toEqual([1, 3, 6]);
+  });
+  it('should provide correct `iteratee` arguments, when no intial value provided', () => {
+    const callback = jasmine.createSpy('callback').and.returnValue(0);
+    sequenz.list(sequenz.scan(callback))(input);
+    expect(callback.calls.allArgs()).toEqual([
+      [1/* previous value */, 2 /* current value */, 1/* current key */],
+      [0/* previous value */, 3 /* current value */, 2/* current key */],
+    ]);
+  });
+  it('should provide correct `iteratee` arguments, when intial value is provided', () => {
+    const callback = jasmine.createSpy('callback').and.returnValue(0);
+    sequenz.list(sequenz.scan(callback, -1))(input);
+    expect(callback.calls.allArgs()).toEqual([
+      [-1/* previous value */, 1 /* current value */, 0/* current key */],
+      [0/* previous value */, 2 /* current value */, 1/* current key */],
+      [0/* previous value */, 3 /* current value */, 2/* current key */],
+    ]);
+  });
+  it('should preserve the key of each element', () => {
+    const object = { a: 1, b: 2, c: 3 };
+    const actual = sequenz.object(sequenz.scan((prev, curr) => prev + curr, 0))(object);
+    expect(actual).toEqual({ a: 1, b: 3, c: 6 });
+  });
+});
