@@ -1,2 +1,6 @@
 import skip from './skip';
-export default () => skip(1);
+/**
+ * Creates a new `sequenz` with all elements except the first one.
+ */
+const tail = () => skip(1);
+export default tail;

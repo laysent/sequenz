@@ -1,2 +1,6 @@
 import reduce from './reduce';
-export default () => subscribe => reduce((count) => count + 1, 0)(subscribe);
+/**
+ * Gets the size of a `sequenz`.
+ */
+const size = () => subscribe => reduce((count) => count + 1, 0)(subscribe);
+export default size;
