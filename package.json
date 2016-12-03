@@ -5,9 +5,10 @@
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
+    "benchmark": "node ./benchmark/index.js",
     "build": "rollup -c",
-    "test": "karma start ./karma.config.js",
-    "benchmark": "node ./benchmark/index.js"
+    "doc": "jsdoc ./src -d ./docs",
+    "test": "karma start ./karma.config.js"
   },
   "keywords": [
     "lazy-evaluation",
@@ -19,6 +20,7 @@
   "devDependencies": {
     "babel-plugin-istanbul": "^2.0.3",
     "benchmark": "^2.1.2",
+    "jsdoc": "^3.4.3",
     "lazy.js": "^0.4.2",
     "lodash": "^4.17.2"
   }
