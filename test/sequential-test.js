@@ -1,6 +1,10 @@
 import * as sequenz from '../src/index';
 import { falsey, isNotUndefined, isEven } from './utils';
 
+/**
+ * APIs to transform the sequenz, and might modify the origin key if necessary
+ */
+
 describe('chunk:', () => {
   const input = [0, 1, 2, 3, 4, 5];
   it('should return chunked arrays', () => {
@@ -81,57 +85,6 @@ describe('concat:', () => {
   });
 });
 
-describe('contains:', () => {
-  const input = [1, 2, 3];
-  it('should work with and an array and a positive `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.contains(3, 1))(input);
-    expect(actual).toBe(true);
-  });
-  it('should work with an array and a `fromIndex` larger than `length`', () => {
-    const actual = sequenz.list(sequenz.contains(2, 3))(input);
-    expect(actual).toBe(false);
-  });
-  it('should work with an array and treat falsy `fromIndex` value as `0`', () => {
-    falsey.forEach((value) => {
-      const actual = sequenz.list(sequenz.contains(1, value))(input);
-      expect(actual).toBe(true);
-    });
-  });
-  it('should work with an array and a negative `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.contains(3, -2))(input);
-    expect(actual).toBe(true);
-    const notFound = sequenz.list(sequenz.contains(1, -2))(input);
-    expect(notFound).toBe(false);
-  });
-  it('should work with an array and a negative `fromIndex` smaller than -1 * `length`', () => {
-    const actual = sequenz.list(sequenz.contains(1, -3))(input);
-    expect(actual).toBe(false);
-  });
-});
-
-describe('countBy:', () => {
-  it('should transform keys by `iteratee`', () => {
-    const input = [1.1, 2.2, 1.3];
-    const actual = sequenz.list(sequenz.countBy(Math.floor))(input);
-    expect(actual).toEqual({ 1: 2, 2: 1 });
-  });
-  it('should use identity function when `iteratee` is not given', () => {
-    const input = [1.1, 2.2, 1.3];
-    const actual = sequenz.list(sequenz.countBy())(input);
-    expect(actual).toEqual({ 1.1: 1, 2.2: 1, 1.3: 1 });
-  });
-  it('should work when `iteratee` is string, use this to read property from each element', () => {
-    const input = ['one', 'two', 'three'];
-    const actual = sequenz.list(sequenz.countBy('length'))(input);
-    expect(actual).toEqual({ 3: 2, 5: 1 });
-  });
-  it('should work when `iteratee` is a number (as a property name after convert to string)', () => {
-    const input = [[1, 'a'], [2, 'b'], [2, 'B']];
-    const actual = sequenz.list(sequenz.countBy(0))(input);
-    expect(actual).toEqual({ 1: 1, 2: 2 });
-  });
-});
-
 describe('difference:', () => {
   it('should only return elements not in given array ', () => {
     const input = [2, 1];
@@ -200,51 +153,6 @@ describe('differenceWith:', () => {
   });
 });
 
-describe('each:', () => {
-  it('should works through each element', () => {
-    const input = [1, 2, 3];
-    const callback = jasmine.createSpy('callback');
-    sequenz.list(sequenz.each(callback))(input);
-    expect(callback.calls.allArgs()).toEqual([
-      [1, 0],
-      [2, 1],
-      [3, 2],
-    ]);
-  });
-  it('should have alias `forEach`', () => {
-    expect(sequenz.each).toBe(sequenz.forEach);
-  });
-});
-
-describe('every:', () => {
-  it('should return `true` if `predicate` returns truthy for all elements', () => {
-    const input = [true, 1, 'a'];
-    const actual = sequenz.list(sequenz.every(x => x))(input);
-    expect(actual).toBe(true);
-  });
-  it('should return `true` for empty collections', () => {
-    const input = [];
-    const actual = sequenz.list(sequenz.every(() => true))(input);
-    expect(actual).toBe(true);
-  });
-  it('should return `false` as soon as `predicate` returns falsey', () => {
-    const input = [1, 2, 3, 4, 5];
-    const callback = jasmine.createSpy('callback').and.returnValue(false);
-    const actual = sequenz.list(sequenz.every(callback))(input);
-    expect(actual).toBe(false);
-    expect(callback).toHaveBeenCalledTimes(1);
-  });
-  it('should work with collections of `undefined` values (test in IE < 9)', () => {
-    const actual = sequenz.list(sequenz.every(x => x))([undefined, undefined, undefined]);
-    expect(actual).toBe(false);
-  });
-  it('should use `identity` when `predicate` is undefined', () => {
-    const input = [0];
-    expect(sequenz.list(sequenz.every())(input)).toBe(false);
-    expect(sequenz.list(sequenz.every(undefined))(input)).toBe(false);
-  });
-});
-
 describe('fill:', () => {
   const input = [1, 2, 3];
   it('should use a default `start` of `0` and a default `end` of `length`', () => {
@@ -306,150 +214,6 @@ describe('fill:', () => {
   });
 });
 
-describe('find:', () => {
-  const input = ['one', 'two', 'three'];
-  it('should return element if found', () => {
-    const actual = sequenz.list(sequenz.find(x => x.length === 3))(input);
-    expect(actual).toBe('one');
-  });
-  it('should return `undefined` if not found', () => {
-    const actual = sequenz.list(sequenz.find(x => x.length === 4))(input);
-    expect(actual).toBeUndefined();
-  });
-  it('should use `identity` if `predicate` not provided', () => {
-    const actual = sequenz.list(sequenz.find())([false, null, '1', true]);
-    expect(actual).toBe('1');
-  });
-  it('should work with a positive `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.find(x => x.length === 3, 1))(input);
-    expect(actual).toBe('two');
-  });
-  it('should work with `fromIndex` >= `length`', () => {
-    [3, 4, 100, Infinity].forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.find(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBeUndefined();
-    });
-  });
-  it('should treat falsey `fromIndex` value as 0', () => {
-    falsey.forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.find(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe('one');
-    });
-  });
-  it('should coerce `fromIndex` to an integer', () => {
-    const actual = sequenz.list(sequenz.find(x => x.length === 3, 1.6))(input);
-    expect(actual).toBe('two');
-  });
-});
-
-describe('findIndex:', () => {
-  const input = ['one', 'two', 'three'];
-  it('should return index of element if found', () => {
-    const actual = sequenz.list(sequenz.findIndex(x => x.length === 3))(input);
-    expect(actual).toBe(0);
-  });
-  it('should return `-1` if not found', () => {
-    const actual = sequenz.list(sequenz.findIndex(x => x.length === 4))(input);
-    expect(actual).toBe(-1);
-  });
-  it('should use `identity` if `predicate` not provided', () => {
-    const actual = sequenz.list(sequenz.findIndex())([false, null, '1', true]);
-    expect(actual).toBe(2);
-  });
-  it('should work with a positive `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.findIndex(x => x.length === 3, 1))(input);
-    expect(actual).toBe(1);
-  });
-  it('should work with `fromIndex` >= `length`', () => {
-    [3, 4, 100, Infinity].forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findIndex(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe(-1);
-    });
-  });
-  it('should treat falsey `fromIndex` value as 0', () => {
-    falsey.forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findIndex(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe(0);
-    });
-  });
-  it('should coerce `fromIndex` to an integer', () => {
-    const actual = sequenz.list(sequenz.findIndex(x => x.length === 3, 1.6))(input);
-    expect(actual).toBe(1);
-  });
-});
-
-describe('findLast:', () => {
-  const input = ['one', 'two', 'three'];
-  it('should return element if found', () => {
-    const actual = sequenz.list(sequenz.findLast(x => x.length === 3))(input);
-    expect(actual).toBe('two');
-  });
-  it('should return `undefined` if not found', () => {
-    const actual = sequenz.list(sequenz.findLast(x => x.length === 4))(input);
-    expect(actual).toBeUndefined();
-  });
-  it('should use `identity` if `predicate` not provided', () => {
-    const actual = sequenz.list(sequenz.findLast())([false, null, '1', true]);
-    expect(actual).toBe(true);
-  });
-  it('should work with a positive `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.findLast(x => x.length === 3, 1))(input);
-    expect(actual).toBe('two');
-  });
-  it('should work with `fromIndex` >= `length`', () => {
-    [3, 4, 100, Infinity].forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findLast(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBeUndefined();
-    });
-  });
-  it('should treat falsey `fromIndex` value as 0', () => {
-    falsey.forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findLast(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe('two');
-    });
-  });
-  it('should coerce `fromIndex` to an integer', () => {
-    const actual = sequenz.list(sequenz.find(x => x.length === 3, 1.6))(input);
-    expect(actual).toBe('two');
-  });
-});
-
-describe('findLastIndex:', () => {
-  const input = ['one', 'two', 'three'];
-  it('should return index of element if found', () => {
-    const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 3))(input);
-    expect(actual).toBe(1);
-  });
-  it('should return `-1` if not found', () => {
-    const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 4))(input);
-    expect(actual).toBe(-1);
-  });
-  it('should use `identity` if `predicate` not provided', () => {
-    const actual = sequenz.list(sequenz.findLastIndex())([false, null, '1', true]);
-    expect(actual).toBe(3);
-  });
-  it('should work with a positive `fromIndex`', () => {
-    const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 3, 1))(input);
-    expect(actual).toBe(1);
-  });
-  it('should work with `fromIndex` >= `length`', () => {
-    [3, 4, 100, Infinity].forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe(-1);
-    });
-  });
-  it('should treat falsey `fromIndex` value as 0', () => {
-    falsey.forEach((fromIndex) => {
-      const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 3, fromIndex))(input);
-      expect(actual).toBe(1);
-    });
-  });
-  it('should coerce `fromIndex` to an integer', () => {
-    const actual = sequenz.list(sequenz.findLastIndex(x => x.length === 3, 1.6))(input);
-    expect(actual).toBe(1);
-  });
-});
-
 describe('filter:', () => {
   it('should return elements where `predicate` returns truthy for', () => {
     const input = [1, 2, 3];
@@ -465,59 +229,6 @@ describe('filter:', () => {
     const object = { a: 1 };
     sequenz.object(sequenz.filter(predicate))(object);
     expect(predicate).toHaveBeenCalledWith(1 /* value */, 'a' /* key */);
-  });
-});
-
-describe('first:', () => {
-  it('should return the first element', () => {
-    const input = [1, 2, 3];
-    const actual = sequenz.list(sequenz.first())(input);
-    expect(actual).toBe(1);
-  });
-  it('should return `undefined` for empty array', () => {
-    const input = [];
-    const actual = sequenz.list(sequenz.first())(input);
-    expect(actual).toBeUndefined();
-  });
-});
-
-describe('firstOrDefault:', () => {
-  it('should return the first element', () => {
-    const input = [1, 2, 3];
-    const value = { };
-    const actual = sequenz.list(sequenz.firstOrDefault(value))(input);
-    expect(actual).toBe(1);
-  });
-  it('should return default value for empty array', () => {
-    const input = [];
-    const value = { };
-    const actual = sequenz.list(sequenz.firstOrDefault(value))(input);
-    expect(actual).toBe(value);
-  });
-});
-
-describe('findWhere:', () => {
-  it('should find first element where given properties match', () => {
-    const properties = { x: 1, y: 2 };
-    const expected = { x: 1, y: 2, z: 3 };
-    const input = [
-      { x: 1, y: 1, z: 1 },
-      { x: 2, y: 2, z: 2 },
-      expected,
-      { x: 3, y: 2, z: 1 },
-    ];
-    const actual = sequenz.list(sequenz.findWhere(properties))(input);
-    expect(actual).toBe(expected);
-  });
-  it('should return `undefined` if no match found', () => {
-    const properties = { x: 1, y: 2 };
-    const input = [
-      { x: 1, y: 1, z: 1 },
-      { x: 2, y: 2, z: 2 },
-      { x: 3, y: 2, z: 1 },
-    ];
-    const actual = sequenz.list(sequenz.findWhere(properties))(input);
-    expect(actual).toBeUndefined();
   });
 });
 
@@ -618,6 +329,106 @@ describe('fromPairs:', () => {
     const actual = sequenz.list(sequenz.fromPairs())(input);
     expect(actual).toEqual({ a: [1], b: 2 });
   });
+  it('should collapse if keys are the same', () => {
+    const input = [['a', 'first'], ['a', 'second']];
+    const actual = sequenz.list(sequenz.fromPairs())(input);
+    expect(actual).toEqual({ a: 'second' });
+  });
+});
+
+describe('initial:', () => {
+  it('should exclude last element', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.initial())(input);
+    expect(actual).toEqual(input.slice(0, input.length - 1));
+  });
+  it('should return empty array when input array is empty', () => {
+    const input = [];
+    const actual = sequenz.list(sequenz.initial())(input);
+    expect(actual).toEqual([]);
+  });
+});
+
+describe('invert:', () => {
+  it('should invert `key` and `value` in `sequenz`', () => {
+    const input = { a: '1', b: '2', c: '3' };
+    const actual = sequenz.object(sequenz.invert())(input);
+    expect(actual).toEqual({ 1: 'a', 2: 'b', 3: 'c' });
+  });
+  it('should convert new `key` to string', () => {
+    const input = { a: 1, b: 2, c: 3 };
+    const actual = sequenz.object(sequenz.invert())(input);
+    expect(actual).toEqual({ 1: 'a', 2: 'b', 3: 'c' });
+  });
+  it('should provide `value` even when `key`s are the same', () => {
+    const input = { a: 1, b: 1, c: 1 };
+    const callback = jasmine.createSpy('callback');
+    const actual = sequenz.object(sequenz.invert(), sequenz.intercept(callback))(input);
+    expect(actual).toEqual({ 1: 'c' });
+    expect(callback.calls.allArgs()).toEqual([
+      ['a'/* value */, 1/* key */],
+      ['b'/* value */, 1/* key */],
+      ['c'/* value */, 1/* key */],
+    ]);
+  });
+});
+
+describe('keys:', () => {
+  it('should use key as new element, while have the index as its new key', () => {
+    const input = { a: 'a', b: 'b' };
+    const actual = sequenz.object(sequenz.keys())(input);
+    expect(actual).toEqual({ 0: 'a', 1: 'b' });
+  });
+});
+
+describe('log:', () => {
+  beforeEach(() => {
+    spyOn(console, 'log');
+  });
+  it('should return original values and keys', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.log())(input);
+    expect(actual).toEqual(input);
+  });
+  it('should call `console.log` on each iteration, when `value` and `key` as parameters', () => {
+    const input = { key: 'value' };
+    sequenz.object(sequenz.map(value => `${value},${value}`), sequenz.log())(input);
+    expect(console.log).toHaveBeenCalledWith('value,value'/* value */, 'key'/* key */);
+  });
+});
+
+describe('pairs:', () => {
+  it('should convert bundle key and elements in group', () => {
+    const input = { one: 1, two: 2 };
+    let actual = sequenz.object(
+      sequenz.pairs(),
+      sequenz.toList
+    )(input);
+    expect(actual).toEqual([['one', 1], ['two', 2]], 'where input is object');
+    actual = sequenz.list(sequenz.pairs())([1, 2]);
+    expect(actual).toEqual([[0, 1], [1, 2]], 'where input is array');
+  });
+});
+
+describe('remove:', () => {
+  it('should remove elements where `predicate` returns truthy for', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.remove(isEven))(input);
+    expect(actual).toEqual([1, 3]);
+  });
+  it('should call `predicate` with both element and key/index', () => {
+    const input = [1];
+    const predicate = jasmine.createSpy('predicate');
+    sequenz.list(sequenz.remove(predicate))(input);
+    expect(predicate).toHaveBeenCalledWith(1 /* value */, 0 /* index */);
+
+    const object = { a: 1 };
+    sequenz.object(sequenz.remove(predicate))(object);
+    expect(predicate).toHaveBeenCalledWith(1 /* value */, 'a' /* key */);
+  });
+  it('should have an alias `reject`', () => {
+    expect(sequenz.remove).toBe(sequenz.reject);
+  });
 });
 
 describe('skip:', () => {
@@ -645,6 +456,14 @@ describe('skip:', () => {
   });
   it('should have an alias `drop`', () => {
     expect(sequenz.drop).toBe(sequenz.skip);
+  });
+});
+
+describe('reverse:', () => {
+  it('should reverse the `sequenz`', () => {
+    const input = [1, 2, 3, 4];
+    const actual = sequenz.list(sequenz.reverse())(input);
+    expect(actual).toEqual([4, 3, 2, 1]);
   });
 });
 
