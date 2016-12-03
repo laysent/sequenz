@@ -42,6 +42,7 @@ import head from './head';
 import indexBy from './indexBy';
 import indexOf from './indexOf';
 import initial from './initial';
+import intercept from './intercept';
 import intersection from './intersection';
 import intersectionBy from './intersectionBy';
 import intersectionWith from './intersectionWith';
@@ -51,6 +52,7 @@ import keys from './keys';
 import last from './last';
 import lastIndexOf from './lastIndexOf';
 import lastOrDefault from './lastOrDefault';
+import log from './log';
 import map from './map';
 import max from './max';
 import min from './min';
@@ -80,7 +82,6 @@ import take from './take';
 import takeRight from './takeRight';
 import takeRightWhile from './takeRightWhile';
 import takeWhile from './takeWhile';
-import tap from './tap';
 import union from './union';
 import unionBy from './unionBy';
 import unionWith from './unionWith';
@@ -105,10 +106,13 @@ export {
 };
 export { groupBy };
 export { head };
-export { indexBy, indexOf, initial, intersection, intersectionBy, intersectionWith, invert };
+export {
+  indexBy, indexOf, initial, intercept,
+  intersection, intersectionBy, intersectionWith, invert,
+};
 export { join };
 export { keys };
-export { last, lastIndexOf, lastOrDefault };
+export { last, lastIndexOf, lastOrDefault, log };
 export { map, max, min };
 export { nth };
 export { pairs, partition, pickBy, pluck };
@@ -118,7 +122,7 @@ export {
   scan, size, slice, skip, skipRight, skipRightWhile, skipWhile,
   some, sortedUniq, sortedUniqBy,
 };
-export { tail, take, takeRight, takeRightWhile, takeWhile, tap };
+export { tail, take, takeRight, takeRightWhile, takeWhile };
 export { union, unionBy, unionWith, uniq, uniqBy, uniqWith, unzip, unzipWith };
 export { where, without };
 export { zip, zipObject, zipObjectWith, zipWith };
