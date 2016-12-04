@@ -665,3 +665,25 @@ describe('takeRightWhile:', () => {
     expect(callback.calls.allArgs()).toEqual([[1, 0], [2, 1], [3, 2]]);
   });
 });
+
+describe('where:', () => {
+  it('should select all elements which matches the given `properties`', () => {
+    const input = [
+      { name: 'anna', age: 40, gender: 'female' },
+      { name: 'ben', age: 50, gender: 'male' },
+      { name: 'chris', age: 60, gender: 'male' },
+    ];
+    const actual = sequenz.list(sequenz.where({ gender: 'female' }))(input);
+    expect(actual).toEqual([input[0]]);
+    expect(actual[0]).toBe(input[0]);
+  });
+  it('should not use property in prototype chain', () => {
+    const input = [
+      { name: 'anna', age: 40, gender: 'female' },
+      { name: 'ben', age: 50, gender: 'male' },
+      { name: 'chris', age: 60, gender: 'male' },
+    ];
+    const actual = sequenz.list(sequenz.where({ toString: Object.prototype.toString }))(input);
+    expect(actual).toEqual([]);
+  });
+});

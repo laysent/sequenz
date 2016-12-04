@@ -13,4 +13,11 @@ const isMatch = (properties) => {
     return true;
   };
 };
-export default properties => filter(isMatch(properties));
+/**
+ * Looks through each element in `sequenz` and returns all elements that contains the given
+ * key-value pairs specified in `properties`.
+ *
+ * @param {object} properties - Key-value pairs.
+ */
+const where = properties => filter(isMatch(properties));
+export default where;
