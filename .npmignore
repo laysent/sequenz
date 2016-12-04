@@ -1,0 +1,8 @@
+.vscode
+benchmark
+coverage
+docs
+test
+typings
+karma.config.js
+webpack.test.config.js

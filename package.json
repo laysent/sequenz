@@ -1,7 +1,7 @@
 {
-  "name": "sequenz",
-  "version": "0.1.0",
-  "description": "super tiny, lodash-like lazy evaluation library",
+  "name": "sequenz-js",
+  "version": "0.1.2",
+  "description": "super tiny, lodash-like lazy evaluation library, with cherry-picking!",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
@@ -12,16 +12,38 @@
   },
   "keywords": [
     "lazy-evaluation",
-    "sequence",
-    "iterable"
+    "lazy",
+    "util",
+    "functional",
+    "performance"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laysent/sequenz.git"
+  },
   "author": "LaySent <laysent@hotmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
     "babel-plugin-istanbul": "^2.0.3",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-es2015-rollup": "^1.2.0",
+    "babelrc-rollup": "^3.0.0",
     "benchmark": "^2.1.2",
+    "jasmine": "^2.5.2",
     "jsdoc": "^3.4.3",
+    "karma": "^1.3.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-clear-screen-reporter": "^1.0.0",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.0.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^1.8.0",
     "lazy.js": "^0.4.2",
-    "lodash": "^4.17.2"
+    "lodash": "^4.17.2",
+    "rollup": "^0.36.4",
+    "rollup-plugin-babel": "^2.6.1",
+    "webpack": "^1.13.3"
   }
 }
