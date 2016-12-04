@@ -54,4 +54,10 @@ describe('repeat:', () => {
       expect(value).toBe(object, `index ${i}`);
     });
   });
+  it('should be able to terminate manually', () => {
+    const object = { };
+    const actual = sequenz.toList(sequenz.take(1)(sequenz.repeat(object, 10)));
+    expect(actual).toEqual([object]);
+    expect(actual[0]).toBe(object);
+  });
 });

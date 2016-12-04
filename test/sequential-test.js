@@ -426,6 +426,11 @@ describe('remove:', () => {
     sequenz.object(sequenz.remove(predicate))(object);
     expect(predicate).toHaveBeenCalledWith(1 /* value */, 'a' /* key */);
   });
+  it('should use `identity` if `predicate` is not provided', () => {
+    const input = [0, 1, true, false];
+    const actual = sequenz.list(sequenz.remove())(input);
+    expect(actual).toEqual([0, false]);
+  });
   it('should have an alias `reject`', () => {
     expect(sequenz.remove).toBe(sequenz.reject);
   });
@@ -436,6 +441,11 @@ describe('reverse:', () => {
     const input = [1, 2, 3, 4];
     const actual = sequenz.list(sequenz.reverse())(input);
     expect(actual).toEqual([4, 3, 2, 1]);
+  });
+  it('should be able to terminate manually', () => {
+    const input = [1, 2, 3, 4];
+    const actual = sequenz.list(sequenz.reverse(), sequenz.take(2))(input);
+    expect(actual).toEqual([4, 3]);
   });
 });
 
@@ -498,6 +508,10 @@ describe('skip:', () => {
 
 describe('skipRight:', () => {
   const input = [1, 2, 3, 4, 5];
+  it('should use `num` = 1 if not specified', () => {
+    const actual = sequenz.list(sequenz.skipRight())(input);
+    expect(actual).toEqual(input.slice(0, input.length - 1));
+  });
   it('should skip give number of elements at the end', () => {
     const actual = sequenz.list(sequenz.skipRight(2))(input);
     expect(actual).toEqual(input.slice(0, 3));
@@ -536,10 +550,10 @@ describe('skipWhile:', () => {
 });
 
 describe('skipRightWhile:', () => {
-  it('should skip element in tail if not satisfied `predicate`', () => {
-    const input = [1, 2, 3, 4];
+  it('should skip element in tail if satisfied `predicate`', () => {
+    const input = [1, 2, 2, 3];
     const actual = sequenz.list(sequenz.skipRightWhile(x => x % 3 < 2))(input);
-    expect(actual).toEqual([1, 2]);
+    expect(actual).toEqual([1, 2, 2]);
   });
   it('should provide correct `predicate` arguments', () => {
     const input = [1, 2, 3, 4];
@@ -547,6 +561,11 @@ describe('skipRightWhile:', () => {
     sequenz.list(sequenz.skipRightWhile(callback))(input);
     expect(callback).toHaveBeenCalledTimes(4);
     expect(callback.calls.allArgs()).toEqual(input.map((value, i) => [value, i]));
+  });
+  it('should use `identity` if `predicate` not provided', () => {
+    const input = [true, false, 0, 1];
+    const actual = sequenz.list(sequenz.skipRightWhile())(input);
+    expect(actual).toEqual([true, false, 0]);
   });
 });
 
@@ -651,10 +670,14 @@ describe('takeWhile:', () => {
     sequenz.list(sequenz.takeWhile(callback))(input);
     expect(callback.calls.allArgs()).toEqual([[1, 0], [2, 1]]);
   });
+  it('should use `identity` if `prediate` not provided', () => {
+    const actual = sequenz.list(sequenz.takeWhile())([-1, 0, 1, 2]);
+    expect(actual).toEqual([-1]);
+  });
 });
 
 describe('takeRightWhile:', () => {
-  const input = [1, 2, 3];
+  const input = [1, 2, 2, 3];
   it('should take elements while `predicate` returns truthy', () => {
     const actual = sequenz.list(sequenz.takeRightWhile(n => n % 2 === 1))(input);
     expect(actual).toEqual([3]);
@@ -662,7 +685,11 @@ describe('takeRightWhile:', () => {
   it('should provide correct arguments to `predicate`', () => {
     const callback = jasmine.createSpy('callback').and.returnValues(true, false, true);
     sequenz.list(sequenz.takeRightWhile(callback))(input);
-    expect(callback.calls.allArgs()).toEqual([[1, 0], [2, 1], [3, 2]]);
+    expect(callback.calls.allArgs()).toEqual([[1, 0], [2, 1], [2, 2], [3, 3]]);
+  });
+  it('should use `identity` if `prediate` not provided', () => {
+    const actual = sequenz.list(sequenz.takeRightWhile())([-1, 0, 1, 2]);
+    expect(actual).toEqual([1, 2]);
   });
 });
 

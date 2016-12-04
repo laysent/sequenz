@@ -409,6 +409,41 @@ describe('last:', () => {
   });
 });
 
+describe('lastIndexOf:', () => {
+  const input = ['one', 'two', 'three', 'one', 'two', 'three'];
+  it('should return index of element if found', () => {
+    [undefined, 0, 1, 3].forEach((fromIndex) => {
+      const actual = sequenz.list(
+        fromIndex === undefined ? sequenz.lastIndexOf('two') : sequenz.lastIndexOf('two', fromIndex)
+      )(input);
+      expect(actual).toBe(4, `where fromIndex is ${fromIndex}`);
+    });
+  });
+  it('should return `-1` if not found', () => {
+    [undefined, 0, 1].forEach((fromIndex) => {
+      const actual = sequenz.list(
+        fromIndex === undefined ?
+        sequenz.lastIndexOf('zero') : sequenz.lastIndexOf('zero', fromIndex)
+      )(input);
+      expect(actual).toBe(-1, `where fromIndex is ${fromIndex}`);
+    });
+  });
+  it('should coerce `fromIndex` to an integer', () => {
+    [1.9, 3.9].forEach((fromIndex) => {
+      const actual = sequenz.list(
+        fromIndex === undefined ? sequenz.lastIndexOf('two') : sequenz.lastIndexOf('two', fromIndex)
+      )(input);
+      expect(actual).toBe(4, `where fromIndex is ${fromIndex}`);
+    });
+  });
+  it('should work with |`fromIndex`| >= `length`', () => {
+    [6, 7, 100, Infinity].forEach((fromIndex) => {
+      const actual = sequenz.list(sequenz.lastIndexOf('one', fromIndex))(input);
+      expect(actual).toBe(-1, `where fromIndex is ${fromIndex}`);
+    });
+  });
+});
+
 describe('lastOrDefault:', () => {
   it('should return the last element', () => {
     const input = [1, 2, 3];
@@ -502,6 +537,11 @@ describe('nth:', () => {
     expect(actual).toBe(1);
     actual = sequenz.list(sequenz.nth(-1.9))(input);
     expect(actual).toBe(3);
+  });
+  it('should use `0` if `n` not provided', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.nth())(input);
+    expect(actual).toBe(1);
   });
 });
 
