@@ -1,4 +1,3 @@
-import indexOf from './indexOf';
 import findLastIndex from './findLastIndex';
 
 /**
