@@ -37,8 +37,44 @@ Sequenz.js is designed to have both:
 Installation
 ------------
 
-Examples
---------
+Using npm:
+
+```bash
+npm install --save sequenz-js
+```
+
+In Node.js:
+
+```JavaScript
+// Load the full build.
+// Bundler should be able to remove unused code later using tree-shaking feature.
+const sequenz = require('sequenz-js');
+
+// Manual pick used APIs, if bundler does not support tree-shaking
+const map = require('sequenz-js/map');
+const filter = require('sequenz-js/filter');
+
+// Use API
+const list = sequenz.list(
+  sequenz.map(x => x + 1),
+  sequenz.filter(x => x < 4),
+  sequenz.take(2)
+)([0, 1, 2, 3, 4]);
+```
 
 Benchmark
 ----------
+
+Current benchmark shows the following result:
+
+> Lazy x 38,431 ops/sec ±3.67% (62 runs sampled)
+>
+> Lodash x 22,486 ops/sec ±2.01% (72 runs sampled)
+>
+> Sequenz x 21,987 ops/sec ±2.70% (69 runs sampled)
+
+Using Lodash@4.17.2 and Lazy.js@0.4.2.
+
+Sequenz.js is not the fastest library, as not all optimization can be implemented using pure
+functions for lazy evaluation, especially when code size is also put into consideration. Still,
+the benchmark shows that the performance of Sequenz.js and Lodash.js are pretty much the same.
