@@ -9,7 +9,8 @@
     "build": "babel ./src -d ./ && rollup -c ./build/rollup.config.js",
     "clean": "del *.js",
     "doc": "jsdoc ./src -d ./docs",
-    "test": "karma start ./build/karma.config.js"
+    "test": "rollup -c ./build/rollup.config.js && jasmine JASMINE_CONFIG_PATH=./build/jasmine.json",
+    "test:watch": "karma start ./build/karma.config.js"
   },
   "keywords": [
     "lazy-evaluation",

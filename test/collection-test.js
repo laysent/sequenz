@@ -1,5 +1,5 @@
-import * as sequenz from '../src/index';
-import { identity, empty } from './utils';
+const sequenz = require('../lib/index');
+const { identity, empty } = require('./utils');
 
 /**
  * APIs to transform the sequenz, and do NOT modify the origin key

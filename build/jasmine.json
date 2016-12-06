@@ -1,0 +1,9 @@
+{
+  "spec_dir": "test",
+  "spec_files": [
+    "./collection-test.js",
+    "./consumer-test.js",
+    "./generator-test.js",
+    "./sequential-test.js"
+  ]
+}
