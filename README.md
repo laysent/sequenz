@@ -51,8 +51,9 @@ In Node.js:
 const sequenz = require('sequenz-js');
 
 // Manual pick used APIs, if bundler does not support tree-shaking
-const map = require('sequenz-js/map');
-const filter = require('sequenz-js/filter');
+// You might need to use `.default`, as original code is written in ES6
+const map = require('sequenz-js/map').default;
+const filter = require('sequenz-js/filter').default;
 
 // Use API
 const list = sequenz.list(

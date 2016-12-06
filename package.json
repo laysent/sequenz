@@ -1,14 +1,15 @@
 {
   "name": "sequenz-js",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "super tiny, lodash-like lazy evaluation library, with cherry-picking!",
   "main": "./lib/index.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
     "benchmark": "node ./benchmark/index.js",
-    "build": "rollup -c",
+    "build": "babel ./src -d ./ && rollup -c ./build/rollup.config.js",
+    "clean": "del *.js",
     "doc": "jsdoc ./src -d ./docs",
-    "test": "karma start ./karma.config.js"
+    "test": "karma start ./build/karma.config.js"
   },
   "keywords": [
     "lazy-evaluation",

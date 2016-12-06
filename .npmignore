@@ -1,8 +1,10 @@
 .vscode
 benchmark
+build
 coverage
 docs
 test
 typings
-karma.config.js
-webpack.test.config.js
+.babelrc
+.eslintrc
+jsconfig.json
