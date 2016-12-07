@@ -9,8 +9,8 @@
     "build": "babel ./src -d ./ && rollup -c ./build/rollup.config.js",
     "clean": "del *.js",
     "doc": "jsdoc ./src -d ./docs",
-    "test": "rollup -c ./build/rollup.config.js && jasmine JASMINE_CONFIG_PATH=./build/jasmine.json",
-    "test:watch": "karma start ./build/karma.config.js"
+    "test": "karma start ./build/karma.config.js --single-run",
+    "coveralls": "cat ./coverage/lcovonly/lcov.info | ./node_modules/.bin/coveralls"
   },
   "keywords": [
     "lazy-evaluation",
@@ -33,6 +33,8 @@
     "babel-preset-es2015-rollup": "^1.2.0",
     "babelrc-rollup": "^3.0.0",
     "benchmark": "^2.1.2",
+    "coveralls": "^2.11.15",
+    "istanbul": "^0.4.5",
     "jasmine": "^2.5.2",
     "jsdoc": "^3.4.3",
     "karma": "^1.3.0",

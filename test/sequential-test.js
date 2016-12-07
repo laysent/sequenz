@@ -1,5 +1,5 @@
-const sequenz = require('../lib/index');
-const { falsey, isNotUndefined, isEven } = require('./utils');
+import * as sequenz from '../src/index';
+import { falsey, isNotUndefined, isEven } from './utils';
 
 /**
  * APIs to transform the sequenz, and might modify the origin key if necessary

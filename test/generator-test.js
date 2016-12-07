@@ -1,4 +1,4 @@
-const sequenz = require('../lib/index');
+import * as sequenz from '../src/index';
 
 describe('range:', () => {
   it('should work with only `stop` specified', () => {

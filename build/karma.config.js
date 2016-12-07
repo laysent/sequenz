@@ -46,7 +46,7 @@ module.exports = function (config) {
     },
 
     coverageReporter: {
-      dir: './coverage',
+      dir: '../coverage',
       reporters: [
         { type: 'html', subdir: 'html' },
         { type: 'lcovonly', subdir: 'lcovonly' },
@@ -71,7 +71,14 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['Chrome_custom'],
+
+    customLaunchers: {
+      Chrome_custom: {
+        base: 'Chrome',
+        flags: ['--no-sandbox'],
+      },
+    },
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits

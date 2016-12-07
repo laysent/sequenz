@@ -1,5 +1,5 @@
-const sequenz = require('../lib/index');
-const { falsey } = require('./utils');
+import * as sequenz from '../src/index';
+import { falsey } from './utils';
 
 describe('contains:', () => {
   const input = [1, 2, 3];
