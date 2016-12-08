@@ -1,6 +1,9 @@
 Sequenz
 =======
 
+![build status](https://api.travis-ci.org/laysent/sequenz.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/laysent/sequenz/badge.svg?branch=master)](https://coveralls.io/github/laysent/sequenz?branch=master)
+
 Sequenz.js is a super tiny library that will help you handle arrays, objects, numbers, etc., with
 **lazy engine** and **cherry-picking**!
 
