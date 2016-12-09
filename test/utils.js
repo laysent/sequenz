@@ -1,13 +1,6 @@
-const falsey = [, null, undefined, false, 0, NaN, '']; // eslint-disable-line
-const isNotUndefined = x => x !== undefined;
-const isEven = x => x % 2 === 0;
-const identity = x => x;
-const empty = function () { };
-
-module.exports = {
-  falsey,
-  isNotUndefined,
-  isEven,
-  identity,
-  empty,
-};
+export const falsey = [, null, undefined, false, 0, NaN, '']; // eslint-disable-line
+export const isNotUndefined = x => x !== undefined;
+export const isEven = x => x % 2 === 0;
+export const identity = x => x;
+export const empty = function () { };
+export const compose = (...fns) => input => fns.reduce((prev, curr) => curr(prev), input);

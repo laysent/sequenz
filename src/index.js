@@ -6,7 +6,10 @@ import string from './string';
 import fromObject from './fromObject';
 import fromIterable from './fromIterable';
 import toList from './toList';
-export { list, object, string, fromObject, fromIterable, toList };
+import toObject from './toObject';
+import toString from './toString';
+import pipeline from './pipeline';
+export { list, object, string, fromObject, fromIterable, toList, toObject, toString, pipeline };
 
 /* ---------- Transforms ---------- */
 

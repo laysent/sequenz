@@ -1,5 +1,5 @@
 import * as sequenz from '../src/index';
-import { falsey } from './utils';
+import { falsey, compose } from './utils';
 
 describe('contains:', () => {
   const input = [1, 2, 3];
@@ -611,5 +611,65 @@ describe('some:', () => {
     const input = [0];
     expect(sequenz.list(sequenz.some())(input)).toBe(false);
     expect(sequenz.list(sequenz.some(undefined))(input)).toBe(false);
+  });
+});
+
+describe('toList:', () => {
+  const input = [1, 2, 3];
+  it('should convert sequenz to an array', () => {
+    const actual = compose(
+      sequenz.fromIterable,
+      sequenz.takeWhile(num => num % 2 !== 0),
+      sequenz.toList
+    )(input);
+    expect(actual).toEqual([1]);
+  });
+  it('should work with empty sequenz', () => {
+    const actual = compose(
+      sequenz.fromIterable,
+      sequenz.take(0),
+      sequenz.toList
+    )(input);
+    expect(actual).toEqual([]);
+  });
+});
+
+describe('toObject:', () => {
+  const input = { a: 1, b: 2, c: 3 };
+  it('should convert sequenz to an array', () => {
+    const actual = compose(
+      sequenz.fromObject,
+      sequenz.pickBy(num => num % 2 !== 0),
+      sequenz.toObject
+    )(input);
+    expect(actual).toEqual({ a: 1, c: 3 });
+  });
+  it('should work with empty sequenz', () => {
+    const actual = compose(
+      sequenz.fromObject,
+      sequenz.take(0),
+      sequenz.toObject
+    )(input);
+    expect(actual).toEqual({});
+  });
+});
+
+describe('toString:', () => {
+  const input = 'hello world';
+  it('should convert sequenz to a string', () => {
+    const actual = compose(
+      sequenz.fromIterable,
+      sequenz.takeWhile(ch => ch !== ' '),
+      sequenz.toString
+    )(input);
+    expect(actual).toBe('hello');
+  });
+  it('should work with empty sequenz', () => {
+    const actual = compose(
+      sequenz.fromIterable,
+      sequenz.take(0),
+      sequenz.toString
+    )(input);
+    expect(actual).toBe('');
   });
 });
