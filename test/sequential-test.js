@@ -349,6 +349,74 @@ describe('initial:', () => {
   });
 });
 
+describe('intersection:', () => {
+  it('should only return elements in given array ', () => {
+    const input = [2, 1];
+    const actual = sequenz.list(sequenz.intersection([2, 3]))(input);
+    expect(actual).toEqual([2]);
+  });
+  it('should work with multiple arrays as well', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.intersection([2, 3], [3, 4]))(input);
+    expect(actual).toEqual([3]);
+  });
+  it('should work with sequenz as well', () => {
+    const input = [2, 1];
+    const actual = sequenz.list(sequenz.intersection(sequenz.fromIterable([2, 3])))(input);
+    expect(actual).toEqual([2]);
+  });
+});
+
+describe('intersectionBy:', () => {
+  it('should use `identity` if `iteratee` is not provided', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.intersectionBy()([2, 3]))(input);
+    expect(actual).toEqual([2, 3]);
+  });
+  it('should accept an `iteratee`', () => {
+    const input = [2.1, 1.2];
+    const actual = sequenz.list(sequenz.intersectionBy(Math.floor)([2.3, 3.4]))(input);
+    expect(actual).toEqual([2.1]);
+  });
+  it('should work with multiple arrays as well', () => {
+    const input = [2.1, 1.2, 3.3];
+    const actual = sequenz.list(sequenz.intersectionBy(Math.floor)([2.3, 3.4], [3.5, 4.6]))(input);
+    expect(actual).toEqual([3.3]);
+  });
+  it('should work with sequenz as well', () => {
+    const input = [2.1, 1.2];
+    const actual = sequenz.list(
+      sequenz.intersectionBy(Math.floor)(sequenz.fromIterable([2.3, 3.4]))
+    )(input);
+    expect(actual).toEqual([2.1]);
+  });
+});
+
+describe('intersectionWith:', () => {
+  const comparator = (x, y) => Math.abs(x.x - y.x) + Math.abs(x.y - y.y);
+  it('should work with a `comparator`', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const actual = sequenz.list(
+      sequenz.intersectionWith(comparator)([{ x: 1, y: 2 }])
+    )(objects);
+    expect(actual).toEqual([objects[0]]);
+  });
+  it('should work with multiple arrays as well', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const actual = sequenz.list(
+      sequenz.intersectionWith(comparator)([{ x: 1, y: 2 }], [{ x: 1, y: -2 }])
+    )(objects);
+    expect(actual).toEqual([objects[0]]);
+  });
+  it('should work with sequenz as well', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const actual = sequenz.list(
+      sequenz.intersectionWith(comparator)(sequenz.fromIterable([{ x: 1, y: 2 }]))
+    )(objects);
+    expect(actual).toEqual([objects[0]]);
+  });
+});
+
 describe('invert:', () => {
   it('should invert `key` and `value` in `sequenz`', () => {
     const input = { a: '1', b: '2', c: '3' };
