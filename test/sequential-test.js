@@ -130,6 +130,11 @@ describe('differenceBy:', () => {
 
 describe('differenceWith:', () => {
   const comparator = (x, y) => Math.abs(x.x - y.x) + Math.abs(x.y - y.y);
+  it('should use `equal` when `comparator` is not provided', () => {
+    const input = [2, 1];
+    const actual = sequenz.list(sequenz.differenceWith()([2, 3], [3, 4]))(input);
+    expect(actual).toEqual([1]);
+  });
   it('should work with a `comparator`', () => {
     const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
     const actual = sequenz.list(
@@ -394,6 +399,11 @@ describe('intersectionBy:', () => {
 
 describe('intersectionWith:', () => {
   const comparator = (x, y) => Math.abs(x.x - y.x) + Math.abs(x.y - y.y);
+  it('should use `equal` when `comparator` is not provided', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.intersectionWith()([2, 3], [3, 4]))(input);
+    expect(actual).toEqual([3]);
+  });
   it('should work with a `comparator`', () => {
     const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
     const actual = sequenz.list(
@@ -761,6 +771,117 @@ describe('takeRightWhile:', () => {
   it('should use `identity` if `prediate` not provided', () => {
     const actual = sequenz.list(sequenz.takeRightWhile())([-1, 0, 1, 2]);
     expect(actual).toEqual([1, 2]);
+  });
+});
+
+describe('union:', () => {
+  it('should only return elements in one time', () => {
+    const input = [2, 1, 1];
+    const actual = sequenz.list(sequenz.union([3, 2, 3]))(input);
+    expect(actual).toEqual([2, 1, 3]);
+  });
+  it('should work with multiple arrays as well', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.union([2, 3], [3, 4]))(input);
+    expect(actual).toEqual([1, 2, 3, 4]);
+  });
+  it('should work with sequenz as well', () => {
+    const input = [2, 1];
+    const actual = sequenz.list(sequenz.union(sequenz.fromIterable([4, 2, 3])))(input);
+    expect(actual).toEqual([2, 1, 4, 3]);
+  });
+});
+
+describe('unionBy:', () => {
+  it('should use `identity` if `iteratee` is not provided', () => {
+    const input = [1, 2];
+    const actual = sequenz.list(sequenz.unionBy()([2, 3]))(input);
+    expect(actual).toEqual([1, 2, 3]);
+  });
+  it('should accept an `iteratee`', () => {
+    const input = [2.1, 1.2];
+    const actual = sequenz.list(sequenz.unionBy(Math.floor)([2.3, 3.4]))(input);
+    expect(actual).toEqual([2.1, 1.2, 3.4]);
+  });
+  it('should work with multiple arrays as well', () => {
+    const input = [2.1, 1.2, 3.3];
+    const actual = sequenz.list(sequenz.unionBy(Math.floor)([2.3, 3.4], [3.5, 4.6]))(input);
+    expect(actual).toEqual([2.1, 1.2, 3.3, 4.6]);
+  });
+  it('should work with sequenz as well', () => {
+    const input = [2.1, 1.2];
+    const actual = sequenz.list(
+      sequenz.unionBy(Math.floor)(sequenz.fromIterable([2.3, 3.4]))
+    )(input);
+    expect(actual).toEqual([2.1, 1.2, 3.4]);
+  });
+});
+
+describe('unionWith:', () => {
+  const comparator = (x, y) => Math.abs(x.x - y.x) + Math.abs(x.y - y.y);
+  it('should use `equal` when `comparator` is not provided', () => {
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.unionWith()([2, 3], [3, 4]))(input);
+    expect(actual).toEqual([1, 2, 3, 4]);
+  });
+  it('should work with a `comparator`', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const actual = sequenz.list(
+      sequenz.unionWith(comparator)([{ x: 1, y: 2 }])
+    )(objects);
+    expect(actual).toEqual(objects);
+  });
+  it('should work with multiple arrays as well', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const another = [{ x: 1, y: -2 }];
+    const actual = sequenz.list(
+      sequenz.unionWith(comparator)([{ x: 1, y: 2 }], another)
+    )(objects);
+    expect(actual).toEqual(objects.concat(another));
+  });
+  it('should work with sequenz as well', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
+    const actual = sequenz.list(
+      sequenz.unionWith(comparator)(sequenz.fromIterable([{ x: 1, y: 2 }]))
+    )(objects);
+    expect(actual).toEqual(objects);
+  });
+});
+
+describe('uniq:', () => {
+  it('should only return elements in one time', () => {
+    const input = [1, 2, 3, 2, 1, 3, 2];
+    const actual = sequenz.list(sequenz.uniq())(input);
+    expect(actual).toEqual([1, 2, 3]);
+  });
+});
+
+describe('uniqBy:', () => {
+  it('should use `identity` if `iteratee` is not provided', () => {
+    const input = [1, 2, 3, 3, 2, 1];
+    const actual = sequenz.list(sequenz.uniqBy())(input);
+    expect(actual).toEqual([1, 2, 3]);
+  });
+  it('should accept an `iteratee`', () => {
+    const input = [2.1, 1.2, 2.3, 3.4];
+    const actual = sequenz.list(sequenz.uniqBy(Math.floor))(input);
+    expect(actual).toEqual([2.1, 1.2, 3.4]);
+  });
+});
+
+describe('uniqWith:', () => {
+  const comparator = (x, y) => Math.abs(x.x - y.x) + Math.abs(x.y - y.y);
+  it('should use `equal` if `comparator` is not provided', () => {
+    const input = [1, 2, 3, 3, 2, 1];
+    const actual = sequenz.list(sequenz.uniqWith())(input);
+    expect(actual).toEqual([1, 2, 3]);
+  });
+  it('should work with a `comparator`', () => {
+    const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }, { x: 1, y: 2 }];
+    const actual = sequenz.list(
+      sequenz.uniqWith(comparator)
+    )(objects);
+    expect(actual).toEqual(objects.slice(0, 2));
   });
 });
 
