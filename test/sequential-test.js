@@ -890,6 +890,28 @@ describe('uniqWith:', () => {
   });
 });
 
+describe('without:', () => {
+  it('should return the difference of values', () => {
+    const input = [2, 1, 2, 3];
+    const actual = sequenz.list(sequenz.without(1, 2))(input);
+    expect(actual).toEqual([3]);
+  });
+  it('should use strict equality to determine the values to reject', () => {
+    const obj1 = { a: 1 };
+    const obj2 = { b: 2 };
+    const input = [obj1, obj2];
+    let actual = sequenz.list(sequenz.without({ a: 1 }))(input);
+    expect(actual).toEqual(input);
+    actual = sequenz.list(sequenz.without(obj1))(input);
+    expect(actual).toEqual([obj2]);
+  });
+  it('should remove all occurrences of each value from an array', () => {
+    const input = [1, 2, 3, 1, 2, 3];
+    const actual = sequenz.list(sequenz.without(1, 2))(input);
+    expect(actual).toEqual([3, 3]);
+  });
+});
+
 describe('where:', () => {
   it('should select all elements which matches the given `properties`', () => {
     const input = [
