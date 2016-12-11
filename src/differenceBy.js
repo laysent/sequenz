@@ -23,9 +23,7 @@ const differenceBy = (iteratee = identity) => (...inputs) => {
   });
   return filter(x => {
     const element = iteratee(x);
-    if (set.has(element)) return false;
-    set.add(element);
-    return true;
+    return !set.has(element);
   });
 };
 export default differenceBy;

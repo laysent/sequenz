@@ -101,6 +101,11 @@ describe('difference:', () => {
     const actual = sequenz.list(sequenz.difference(sequenz.fromIterable([2, 3])))(input);
     expect(actual).toEqual([1]);
   });
+  it('should allow duplicated values in given sequenz', () => {
+    const input = [1, 2, 3, 1, 2, 3];
+    const actual = sequenz.list(sequenz.difference(1, 2))(input);
+    expect(actual).toEqual([3, 3]);
+  });
 });
 
 describe('differenceBy:', () => {
