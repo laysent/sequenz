@@ -6,7 +6,7 @@ import compose from './compose';
 import filter from './filter';
 
 /**
- * High oder function that acts similarly as `sequenz.intersectionWith`, except that it first
+ * High oder function that acts similarly as `sequenz.intersection`, except that it first
  * accepts a customized comparator function that will be used to compara values.
  *
  * @param {function(any,any):number} [comparator=equal] Comparator function that will be used to
