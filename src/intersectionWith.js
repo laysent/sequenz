@@ -15,11 +15,12 @@ import filter from './filter';
 const intersectionWith = (comparator) => {
   if (comparator === undefined) return intersection;
   return (...inputs) => {
+    const length = inputs.length;
     const values = inputs.map((input) => {
       if (isArray(input)) return input;
       return compose(from, toList)(input);
     }).reduce((ret, input) => ret.concat(input));
-    return filter(x => values.some(y => comparator(x, y) === 0));
+    return filter(x => values.filter(y => comparator(x, y) === 0).length === length);
   };
 };
 

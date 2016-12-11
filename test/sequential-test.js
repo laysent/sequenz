@@ -404,7 +404,10 @@ describe('intersectionWith:', () => {
   it('should work with multiple arrays as well', () => {
     const objects = [{ x: 1, y: 2 }, { x: 2, y: 1 }];
     const actual = sequenz.list(
-      sequenz.intersectionWith(comparator)([{ x: 1, y: 2 }], [{ x: 1, y: -2 }])
+      sequenz.intersectionWith(comparator)(
+        [{ x: 1, y: 2 }, { x: 2, y: 1 }],
+        [{ x: 2, y: -1 }, { x: 1, y: 2 }]
+      )
     )(objects);
     expect(actual).toEqual([objects[0]]);
   });
