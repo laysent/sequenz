@@ -10,6 +10,7 @@
     "clean": "del *.js",
     "doc": "jsdoc ./src -d ./docs",
     "test": "karma start ./build/karma.config.js --single-run",
+    "test:watch": "karma start ./build/karma.config.js",
     "coveralls": "cat ./coverage/lcovonly/lcov.info | ./node_modules/.bin/coveralls"
   },
   "keywords": [
