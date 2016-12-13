@@ -1,18 +1,36 @@
-import reduce from './reduce';
 import { isString } from './utils';
 
-export default iteratee => {
+const groupBy = (iteratee) => {
   const mapFn = isString(iteratee) ? element => element[iteratee] : iteratee;
-  return subscribe => reduce(
-    (previous, element) => {
-      const key = mapFn(element);
-      if (Object.prototype.hasOwnProperty.call(previous, key)) {
-        previous[key].push(element);
+  return subscribe => onNext => {
+    const cache = { };
+    const doNext = (key, element) => {
+      if (!cache[key] || !cache[key].onNext) return;
+      if (cache[key].onNext(element, cache[key].count) === false) {
+        cache[key].onNext = null;
       } else {
-        previous[key] = [element]; // eslint-disable-line no-param-reassign
+        cache[key].count += 1;
       }
-      return previous;
-    },
-    {}
-  )(subscribe);
+    }
+    return subscribe((element, i) => {
+      const key = mapFn(element, i);
+      if (cache[key]) {
+        doNext(key, element);
+      } else {
+        if (onNext((onNextForThisKey) => {
+          cache[key] = {
+            onNext: onNextForThisKey,
+            count: 0,
+          };
+        }, key) === false) {
+          doNext(key, element);
+          return false;
+        } else {
+          doNext(key, element);
+        }
+      }
+    });
+  };
 };
+
+export default groupBy;

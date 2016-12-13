@@ -1,5 +1,5 @@
 import * as sequenz from '../src/index';
-import { falsey, isNotUndefined, isEven } from './utils';
+import { falsey, isNotUndefined, isEven, compose } from './utils';
 
 /**
  * APIs to transform the sequenz, and might modify the origin key if necessary
@@ -346,6 +346,73 @@ describe('fromPairs:', () => {
   });
 });
 
+describe('groupBy:', () => {
+  const input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  it('should group elements into sequenz', () => {
+    const actual = { };
+    sequenz.list(
+      sequenz.groupBy(num => num % 3),
+      sequenz.each((seq, key) => {
+        actual[key] = sequenz.toList(seq);
+      })
+    )(input);
+    expect(actual).toEqual({
+      0: [3, 6, 9, 0],
+      1: [1, 4, 7],
+      2: [2, 5, 8],
+    });
+  });
+  it('should be able to terminate sequenz', () => {
+    const actual = { };
+    sequenz.list(
+      sequenz.groupBy(num => num % 7),
+      sequenz.takeWhile((_, key) => key <= 3),
+      sequenz.each((seq, key) => {
+        actual[key] = sequenz.toList(seq);
+      })
+    )(input);
+    expect(actual).toEqual({
+      1: [1],
+      2: [2],
+      3: [3],
+    });
+  });
+  it('should be able to terminate each inner sequenz', () => {
+    const actual = { };
+    sequenz.list(
+      sequenz.groupBy(num => num % 3),
+      sequenz.each((seq, key) => {
+        actual[key] = compose(sequenz.take(2), sequenz.toList)(seq);
+      })
+    )(input);
+    expect(actual).toEqual({
+      0: [3, 6],
+      1: [1, 4],
+      2: [2, 5],
+    });
+  });
+  it('should accept string as `iteratee` shortcut', () => {
+    const list = [
+      { name: 'anna', age: 12 },
+      { name: 'ben', age: 14 },
+      { name: 'claire', age: 12 },
+      { name: 'danielle', age: 18 },
+    ];
+    const actual = { };
+    sequenz.list(
+      sequenz.groupBy('age'),
+      sequenz.each((seq, key) => {
+        actual[key] = sequenz.toList(seq);
+      })
+    )(list);
+    expect(actual).toEqual({
+      12: [list[0], list[2]],
+      14: [list[1]],
+      18: [list[3]],
+    });
+  });
+});
+
 describe('initial:', () => {
   it('should exclude last element', () => {
     const input = [1, 2, 3];
@@ -493,6 +560,38 @@ describe('pairs:', () => {
     expect(actual).toEqual([['one', 1], ['two', 2]], 'where input is object');
     actual = sequenz.list(sequenz.pairs())([1, 2]);
     expect(actual).toEqual([[0, 1], [1, 2]], 'where input is array');
+  });
+});
+
+describe('partition:', () => {
+  const input = [1, 2, 3, 4, 5];
+  it('should split sequenz into two sequenz depending on `predicate` result', () => {
+    const predicate = num => num % 2 === 0;
+    const actual = { };
+    sequenz.list(
+      sequenz.partition(predicate),
+      sequenz.each((seq, key) => {
+        actual[key] = sequenz.toList(seq);
+      })
+    )(input);
+    expect(actual).toEqual({
+      truthy: [2, 4],
+      falsey: [1, 3, 5],
+    });
+  });
+  it('should convert predicate returns to boolean', () => {
+    const predicate = num => num % 2;
+    const actual = { };
+    sequenz.list(
+      sequenz.partition(predicate),
+      sequenz.each((seq, key) => {
+        actual[key] = sequenz.toList(seq);
+      })
+    )(input);
+    expect(actual).toEqual({
+      falsey: [2, 4],
+      truthy: [1, 3, 5],
+    });
   });
 });
 
