@@ -1,7 +1,8 @@
-import { identity } from './utils';
+import { identity, truthy } from './utils';
 
 export default (num = 1) => {
   if (num < 1) return identity;
+  if (num === Infinity) return () => truthy;
   const n = Math.floor(num);
   const cache = new Array(n);
   let count = -1;

@@ -1,5 +1,7 @@
 import take from './take';
 import skip from './skip';
+import takeRight from './takeRight';
+import skipRight from './skipRight';
 import compose from './compose';
 
 /**
@@ -9,8 +11,8 @@ import compose from './compose';
  * @param {number} [end=Infinity] End index.
  */
 const slice = (start = 0, end = Infinity) => compose(
-  skip(start),
-  take(end - start)
+  start >= 0 ? skip(start) : takeRight(-1 * start),
+  end >= 0 ? take(end - start) : skipRight(-1 * end)
 );
 
 export default slice;

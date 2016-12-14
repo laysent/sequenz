@@ -661,6 +661,30 @@ describe('slice:', () => {
     const actual = sequenz.list(sequenz.slice(1, 10))(input);
     expect(actual).toEqual(input.slice(1));
   });
+  it('should work with negative `start`', () => {
+    const actual = sequenz.list(sequenz.slice(-1))(input);
+    expect(actual).toEqual([5]);
+  });
+  it('should work with negative `start` <= negative `length`', () => {
+    [-5, -6, -Infinity].forEach((value) => {
+      const actual = sequenz.list(sequenz.slice(value))(input);
+      expect(actual).toEqual(input);
+    });
+  });
+  it('should work with negaive `end`', () => {
+    const actual = sequenz.list(sequenz.slice(1, -1))(input);
+    expect(actual).toEqual([2, 3, 4]);
+  });
+  it('should work with a negative `end` <= negative `length`', () => {
+    [-5, -6, -Infinity].forEach((value) => {
+      const actual = sequenz.list(sequenz.slice(0, value))(input);
+      expect(actual).toEqual([], `where end is ${value}`);
+    });
+  });
+  it('should work with both negative `start` and `end`', () => {
+    const actual = sequenz.list(sequenz.slice(-3, -1))(input);
+    expect(actual).toEqual([3, 4]);
+  });
 });
 
 describe('skip:', () => {
