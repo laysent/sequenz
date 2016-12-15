@@ -1,4 +1,12 @@
-export default (num = 1) => subscribe => onNext => {
+/**
+ * Take given number of elements counting from right hand side of sequenz.
+ *
+ * [NOTICE]: This API needs to first iterate over ALL elements in sequenz to produce a new sequenz
+ * containing only the required elements.
+ *
+ * @param {number} num - Number of elements to receive.
+ */
+const takeRight = (num = 1) => subscribe => onNext => {
   const length = Math.floor(num) || 0;
   if (length < 1) return true;
   const cache = length > 200 ? [] : new Array(length);
@@ -22,3 +30,4 @@ export default (num = 1) => subscribe => onNext => {
   if (doNext(shift, length, shift) === false) return false;
   return doNext(0, shift, shift - length);
 };
+export default takeRight;

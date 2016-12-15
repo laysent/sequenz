@@ -1,6 +1,14 @@
 import { identity, isFunction } from './utils';
 
-export default (iteratee = identity) => subscribe => {
+/**
+ * Creates an object containing the key-value pairs, where keys are generated using given `iteratee`
+ * and values are the total times each key is generated from elements in sequenz.
+ *
+ * By default, `identity` function is used as `iteratee`.
+ *
+ * @param {function(any):string} iteratee - Iteratee function to generate keys.
+ */
+const countBy = (iteratee = identity) => subscribe => {
   const result = { };
   const mapFn = isFunction(iteratee) ? iteratee : element => element[iteratee.toString()];
   subscribe((element) => {
@@ -9,3 +17,4 @@ export default (iteratee = identity) => subscribe => {
   });
   return result;
 };
+export default countBy;
