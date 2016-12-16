@@ -100,7 +100,6 @@ import without from './without';
 import zip from './zip';
 import zipObject from './zipObject';
 import zipObjectWith from './zipObjectWith';
-import zipWith from './zipWith';
 
 export { chunk, compact, concat, contains, countBy };
 export { difference, differenceBy, differenceWith, drop, dropRight, dropRightWhile, dropWhile };
@@ -130,4 +129,4 @@ export {
 export { tail, take, takeRight, takeRightWhile, takeWhile };
 export { union, unionBy, unionWith, uniq, uniqBy, uniqWith, unzip, unzipWith };
 export { where, without };
-export { zip, zipObject, zipObjectWith, zipWith };
+export { zip, zipObject, zipObjectWith };

@@ -348,13 +348,10 @@ describe('fromPairs:', () => {
 
 describe('groupBy:', () => {
   const input = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-  it('should group elements into sequenz', () => {
-    const actual = { };
-    sequenz.list(
+  it('should group elements into sequenz of list', () => {
+    const actual = sequenz.list(
       sequenz.groupBy(num => num % 3),
-      sequenz.each((seq, key) => {
-        actual[key] = sequenz.toList(seq);
-      })
+      sequenz.toObject
     )(input);
     expect(actual).toEqual({
       0: [3, 6, 9, 0],
@@ -363,32 +360,25 @@ describe('groupBy:', () => {
     });
   });
   it('should be able to terminate sequenz', () => {
-    const actual = { };
-    sequenz.list(
-      sequenz.groupBy(num => num % 7),
-      sequenz.takeWhile((_, key) => key <= 3),
-      sequenz.each((seq, key) => {
-        actual[key] = sequenz.toList(seq);
-      })
+    const actual = sequenz.list(
+      sequenz.groupBy(num => num % 3, () => sequenz.take(1)),
+      sequenz.toObject
     )(input);
     expect(actual).toEqual({
       1: [1],
       2: [2],
-      3: [3],
+      0: [3],
     });
   });
-  it('should be able to terminate each inner sequenz', () => {
-    const actual = { };
-    sequenz.list(
-      sequenz.groupBy(num => num % 3),
-      sequenz.each((seq, key) => {
-        actual[key] = compose(sequenz.take(2), sequenz.toList)(seq);
-      })
+  it('should be able to terminate each inner sequenz differently', () => {
+    const actual = sequenz.list(
+      sequenz.groupBy(num => num % 3, key => sequenz.take(key + 1)),
+      sequenz.toObject
     )(input);
     expect(actual).toEqual({
-      0: [3, 6],
+      0: [3],
       1: [1, 4],
-      2: [2, 5],
+      2: [2, 5, 8],
     });
   });
   it('should accept string as `iteratee` shortcut', () => {
@@ -398,12 +388,9 @@ describe('groupBy:', () => {
       { name: 'claire', age: 12 },
       { name: 'danielle', age: 18 },
     ];
-    const actual = { };
-    sequenz.list(
+    const actual = sequenz.list(
       sequenz.groupBy('age'),
-      sequenz.each((seq, key) => {
-        actual[key] = sequenz.toList(seq);
-      })
+      sequenz.toObject
     )(list);
     expect(actual).toEqual({
       12: [list[0], list[2]],
@@ -567,12 +554,9 @@ describe('partition:', () => {
   const input = [1, 2, 3, 4, 5];
   it('should split sequenz into two sequenz depending on `predicate` result', () => {
     const predicate = num => num % 2 === 0;
-    const actual = { };
-    sequenz.list(
+    const actual = sequenz.list(
       sequenz.partition(predicate),
-      sequenz.each((seq, key) => {
-        actual[key] = sequenz.toList(seq);
-      })
+      sequenz.toObject
     )(input);
     expect(actual).toEqual({
       truthy: [2, 4],
@@ -581,16 +565,24 @@ describe('partition:', () => {
   });
   it('should convert predicate returns to boolean', () => {
     const predicate = num => num % 2;
-    const actual = { };
-    sequenz.list(
+    const actual = sequenz.list(
       sequenz.partition(predicate),
-      sequenz.each((seq, key) => {
-        actual[key] = sequenz.toList(seq);
-      })
+      sequenz.toObject,
     )(input);
     expect(actual).toEqual({
       falsey: [2, 4],
       truthy: [1, 3, 5],
+    });
+  });
+  it('should accept transform generate as second param to transfer sequenz', () => {
+    const predicate = num => num % 2;
+    const actual = sequenz.list(
+      sequenz.partition(predicate, () => sequenz.take(2)),
+      sequenz.toObject
+    )(input);
+    expect(actual).toEqual({
+      falsey: [2, 4],
+      truthy: [1, 3],
     });
   });
 });
@@ -1053,6 +1045,50 @@ describe('where:', () => {
       { name: 'chris', age: 60, gender: 'male' },
     ];
     const actual = sequenz.list(sequenz.where({ toString: Object.prototype.toString }))(input);
+    expect(actual).toEqual([]);
+  });
+});
+
+describe('zip:', () => {
+  const input = [
+    [1, 2],
+    [3, 4, 5],
+    [6],
+    [7, 8],
+    [9, 0],
+  ];
+  it('should group elements into sequenz of list', () => {
+    const actual = sequenz.list(
+      sequenz.zip(),
+      sequenz.toList
+    )(input);
+    expect(actual).toEqual([
+      [1, 3, 6, 7, 9],
+      [2, 4, undefined, 8, 0],
+    ]);
+  });
+  it('should be able to terminate sequenz', () => {
+    const actual = sequenz.list(
+      sequenz.zip(() => sequenz.take(3))
+    )(input);
+    expect(actual).toEqual([
+      [1, 3, 6],
+      [2, 4, undefined],
+    ]);
+  });
+  it('should be able to terminate each inner sequenz differently', () => {
+    const actual = sequenz.list(
+      sequenz.zip((index) => sequenz.take(index + 1))
+    )(input);
+    expect(actual).toEqual([
+      [1],
+      [2, 4],
+    ]);
+  });
+  it('should result in empty sequenz, if first element is empty array', () => {
+    const actual = sequenz.list(
+      sequenz.zip()
+    )([[], [1], [2]]);
     expect(actual).toEqual([]);
   });
 });
