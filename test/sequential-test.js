@@ -1049,7 +1049,7 @@ describe('where:', () => {
   });
 });
 
-describe('zip:', () => {
+describe('unzip:', () => {
   const input = [
     [1, 2],
     [3, 4, 5],
@@ -1059,7 +1059,7 @@ describe('zip:', () => {
   ];
   it('should group elements into sequenz of list', () => {
     const actual = sequenz.list(
-      sequenz.zip(),
+      sequenz.unzip(),
       sequenz.toList
     )(input);
     expect(actual).toEqual([
@@ -1069,7 +1069,7 @@ describe('zip:', () => {
   });
   it('should be able to terminate sequenz', () => {
     const actual = sequenz.list(
-      sequenz.zip(() => sequenz.take(3))
+      sequenz.unzip(() => sequenz.take(3))
     )(input);
     expect(actual).toEqual([
       [1, 3, 6],
@@ -1078,7 +1078,7 @@ describe('zip:', () => {
   });
   it('should be able to terminate each inner sequenz differently', () => {
     const actual = sequenz.list(
-      sequenz.zip((index) => sequenz.take(index + 1))
+      sequenz.unzip((index) => sequenz.take(index + 1))
     )(input);
     expect(actual).toEqual([
       [1],
@@ -1087,8 +1087,64 @@ describe('zip:', () => {
   });
   it('should result in empty sequenz, if first element is empty array', () => {
     const actual = sequenz.list(
-      sequenz.zip()
+      sequenz.unzip()
     )([[], [1], [2]]);
     expect(actual).toEqual([]);
+  });
+});
+
+describe('zip:', () => {
+  const input1 = [1, 2, 3];
+  const input2 = [4, 5, 6];
+  it('should group elements from sequenz and each array into a new element', () => {
+    const input = [7, 8, 9];
+    const actual = sequenz.list(sequenz.zip(input1, input2))(input);
+    expect(actual).toEqual([
+      [7, 1, 4],
+      [8, 2, 5],
+      [9, 3, 6],
+    ]);
+  });
+  it('should use undefined if certain element cannot be found', () => {
+    const input = [7, 8, 9, 0];
+    const actual = sequenz.list(sequenz.zip(input1, input2))(input);
+    expect(actual).toEqual([
+      [7, 1, 4],
+      [8, 2, 5],
+      [9, 3, 6],
+      [0, undefined, undefined],
+    ]);
+  });
+  it('should have same `length` for sequenz', () => {
+    const input = [7];
+    const actual = sequenz.list(sequenz.zip(input1, input2))(input);
+    expect(actual).toEqual([
+      [7, 1, 4],
+    ]);
+  });
+});
+
+describe('zipObject:', () => {
+  it('should use keys from given array and values from sequenz', () => {
+    const keys = ['a', 'b', 'c'];
+    const input = [1, 2];
+    const actual = sequenz.list(sequenz.zipObject(keys), sequenz.toObject)(input);
+    expect(actual).toEqual({ a: 1, b: 2 });
+  });
+  it('should terminate early if keys are not enough', () => {
+    const keys = ['a'];
+    const input = [1, 2, 3];
+    const actual = sequenz.list(sequenz.zipObject(keys), sequenz.toObject)(input);
+    expect(actual).toEqual({ a: 1 });
+  });
+  it('should terminate early if manually stops the iteration', () => {
+    const keys = ['a', 'b', 'c'];
+    const input = [1, 2, 3];
+    const actual = sequenz.list(
+      sequenz.zipObject(keys),
+      sequenz.takeWhile(element => element <= 2),
+      sequenz.toObject
+    )(input);
+    expect(actual).toEqual({ a: 1, b: 2 });
   });
 });
