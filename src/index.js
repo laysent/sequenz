@@ -8,8 +8,8 @@ import fromIterable from './fromIterable';
 import toList from './toList';
 import toObject from './toObject';
 import toString from './toString';
-import pipeline from './pipeline';
-export { list, object, string, fromObject, fromIterable, toList, toObject, toString, pipeline };
+// import pipeline from './pipeline';
+export { list, object, string, fromObject, fromIterable, toList, toObject, toString };
 
 /* ---------- Transforms ---------- */
 
@@ -94,12 +94,10 @@ import uniq from './uniq';
 import uniqBy from './uniqBy';
 import uniqWith from './uniqWith';
 import unzip from './unzip';
-import unzipWith from './unzipWith';
 import where from './where';
 import without from './without';
 import zip from './zip';
 import zipObject from './zipObject';
-import zipObjectWith from './zipObjectWith';
 
 export { chunk, compact, concat, contains, countBy };
 export { difference, differenceBy, differenceWith, drop, dropRight, dropRightWhile, dropWhile };
@@ -127,6 +125,6 @@ export {
   some, sortedUniq, sortedUniqBy,
 };
 export { tail, take, takeRight, takeRightWhile, takeWhile };
-export { union, unionBy, unionWith, uniq, uniqBy, uniqWith, unzip, unzipWith };
+export { union, unionBy, unionWith, uniq, uniqBy, uniqWith, unzip };
 export { where, without };
-export { zip, zipObject, zipObjectWith };
+export { zip, zipObject };
