@@ -1,6 +1,8 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define('sequenz', ['exports'], factory) :
+  (factory((global.sequenz = global.sequenz || {})));
+}(this, (function (exports) { 'use strict';
 
 var compose = (function () {
   for (var _len = arguments.length, transforms = Array(_len), _key = 0; _key < _len; _key++) {
@@ -112,6 +114,7 @@ var string = (function () {
   };
 });
 
+var empty = function empty() {};
 /**
  * Identity function that accepts one argument and returns the exact same argument.
  *
@@ -316,11 +319,18 @@ var findOrigin = (function () {
   };
 });
 
-var findIndex = (function (predicate, fromIndex) {
+/**
+ * Find the first index in sequenz where `predicate` returns true.
+ *
+ * @param {function(any,any):boolean} predicate - Predicate function to determine if value has been
+ * found.
+ * @param {number} fromIndex - Index to start searching.
+ */
+var findIndex = function findIndex(predicate, fromIndex) {
   return function (subscribe) {
     return findOrigin(predicate, fromIndex)(subscribe).index;
   };
-});
+};
 
 var findLastOrigin = (function () {
   var predicate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
@@ -338,11 +348,18 @@ var findLastOrigin = (function () {
   };
 });
 
-var findLastIndex = (function (predicate, fromIndex) {
+/**
+ * Find the last index in sequenz where `predicate` returns true.
+ *
+ * @param {function(any,any):boolean} predicate - Predicate function to determine if value has been
+ * found.
+ * @param {number} fromIndex - Index to start searching.
+ */
+var findLastIndex = function findLastIndex(predicate, fromIndex) {
   return function (subscribe) {
     return findLastOrigin(predicate, fromIndex)(subscribe).index;
   };
-});
+};
 
 /**
  * Gets the index at which the first occurrence of `value` is found in `sequenz`.
@@ -360,14 +377,29 @@ var indexOf = function indexOf(value) {
   }, fromIndex);
 };
 
-var contains = (function (value) {
+/**
+ * Check whether the given value is contained in sequenz. Comparasion will be made using strict
+ * equal `===`.
+ *
+ * @param {any} value - Value that should be used in search.
+ * @param {number} fromIndex - Starting index for seaching.
+ */
+var contains = function contains(value) {
   var fromIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   return function (subscribe) {
     return indexOf(value, fromIndex)(subscribe) >= 0;
   };
-});
+};
 
-var countBy = (function () {
+/**
+ * Creates an object containing the key-value pairs, where keys are generated using given `iteratee`
+ * and values are the total times each key is generated from elements in sequenz.
+ *
+ * By default, `identity` function is used as `iteratee`.
+ *
+ * @param {function(any):string} iteratee - Iteratee function to generate keys.
+ */
+var countBy = function countBy() {
   var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
   return function (subscribe) {
     var result = {};
@@ -380,86 +412,77 @@ var countBy = (function () {
     });
     return result;
   };
-});
+};
 
 /**
- * Creates a new `sequenz` of values by running each element of given `sequenz` with `iteratee`,
- * while keeping the `key` unmodified. The `iteratee` is invoked with two arguments: `element` and
- * `key`.
+ * Iterate over each element in `sequenz`
  *
- * @param {function(any,any):any} iteratee - Function to create new `element`.
+ * @param {function(any,any):boolean} f - Callback that will be triggered for every element in
+ * `sequenz`. Returning `false` will terminate the iteration.
  */
-var map = function map(iteratee) {
+var each = function each(f) {
   return function (subscribe) {
-    return function (onNext) {
-      return subscribe(function (element, key) {
-        return onNext(iteratee(element, key), key);
-      });
-    };
+    return subscribe(f);
   };
 };
 
-var differenceOrigin = (function () {
-  for (var _len = arguments.length, inputs = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    inputs[_key - 2] = arguments[_key];
+/* istanbul ignore next */function MapPolyfill() {
+  this.str = {};
+  this.num = {};
+}
+
+MapPolyfill.prototype.set /* istanbul ignore next */ = function add(key, value) {
+  if (isString(key)) {
+    this.str[key] = value;
+    return;
+  } else if (isNumber(key)) {
+    this.num[key] = value;
+    return;
   }
-
-  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
-  var comparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equal;
-
-  var values = void 0;
-  if (iteratee === identity) {
-    values = inputs.map(function (input) {
-      if (isArray(input)) return input;
-      return compose(from, toList)(input);
-    }).reduce(function (ret, input) {
-      return ret.concat(input);
-    });
-    return filter(function (x) {
-      return values.every(function (y) {
-        return comparator(x, y) !== 0;
-      });
-    });
+  if (!this.restKey) {
+    this.restKey = [];this.restValue = [];
   }
-  values = inputs.map(function (input) {
-    return compose(from, map(iteratee), toList)(input);
-  }).reduce(function (ret, value) {
-    return ret.concat(value);
-  });
-  return filter(function (x) {
-    return values.every(function (y) {
-      return comparator(iteratee(x), y) !== 0;
-    });
-  });
-});
-
-/**
- * High oder function that acts similarly as `sequenz.difference`, except that it first accepts a
- * customized comparator function that will be used to compara values.
- *
- * @param {function(any,any):number} [comparator=equal] Comparator function that will be used to
- * compara alues. Comparator should return `0` when two values are equal.
- */
-var differenceWith = function differenceWith() {
-  var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : equal;
-  return function () {
-    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
-      inputs[_key] = arguments[_key];
+  for (var i = 0; i < this.restKey.length; i += 1) {
+    if (this.restKey[i] === key) {
+      this.restValue[i] = value;
+      return;
     }
-
-    return differenceOrigin.apply(undefined, [undefined, comparator].concat(inputs));
-  };
+  }
+  this.restKey.push(key);
+  this.restValue.push(value);
 };
 
-/**
- * Create a sequenz of values that do not appear in other given arrays.
- *
- * @param {...Array} inputs - The values to exclude. If given is not array, it will be converted to
- * based on implementation of `sequenz.from`.
- */
-var difference = function difference() {
-  return differenceWith().apply(undefined, arguments);
+MapPolyfill.prototype.has /* istanbul ignore next */ = function has(key) {
+  if (isString(key)) return this.str.hasOwnProperty(key);else if (isNumber(key)) return this.num.hasOwnProperty(key);else if (!this.restKey) return false;
+  for (var i = 0; i < this.restKey.length; i += 1) {
+    if (this.restKey[i] === key) return true;
+  }
+  return false;
 };
+
+MapPolyfill.prototype.get /* istanbul ignore next */ = function get(key) {
+  if (isString(key)) return this.str[key];else if (isNumber(key)) return this.num[key];else if (!this.restKey) return undefined;
+  for (var i = 0; i < this.restKey.length; i += 1) {
+    if (this.restKey[i] === key) return this.restValue[i];
+  }
+  return undefined;
+};
+
+var Map$1 = typeof May === 'undefined' ? MapPolyfill : Map;
+
+/* istanbul ignore next */function SetPolyfill() {
+  this.map = new Map$1();
+}
+
+SetPolyfill.prototype.add /* istanbul ignore next */ = function add(key) {
+  this.map.set(key, key);
+};
+
+SetPolyfill.prototype.has /* istanbul ignore next */ = function has(key) {
+  return this.map.has(key);
+};
+
+var Set$1 = typeof Set === 'undefined' ? SetPolyfill : Set;
 
 /**
  * High oder function that acts similarly as `sequenz.difference`, except that it first accepts an
@@ -476,26 +499,82 @@ var differenceBy = function differenceBy() {
       inputs[_key] = arguments[_key];
     }
 
-    return differenceOrigin.apply(undefined, [iteratee, undefined].concat(inputs));
+    var set = new Set$1();
+    inputs.forEach(function (input) {
+      compose(from, each(function (element) {
+        set.add(iteratee(element));
+      }))(input);
+    });
+    return filter(function (x) {
+      var element = iteratee(x);
+      return !set.has(element);
+    });
   };
 };
 
-var skipWhile = (function (f) {
+/**
+ * Create a sequenz of values that do not appear in other given arrays.
+ *
+ * @param {...Array} inputs - The values to exclude. If given is not array, it will be converted to
+ * based on implementation of `sequenz.from`.
+ */
+var difference = differenceBy(identity);
+
+/**
+ * High oder function that acts similarly as `sequenz.difference`, except that it first accepts a
+ * customized comparator function that will be used to compara values.
+ *
+ * @param {function(any,any):number} [comparator=equal] Comparator function that will be used to
+ * compara alues. Comparator should return `0` when two values are equal.
+ */
+var differenceWith = function differenceWith(comparator) {
+  if (comparator === undefined) return difference;
+  return function () {
+    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+      inputs[_key] = arguments[_key];
+    }
+
+    var values = inputs.map(function (input) {
+      if (isArray(input)) return input;
+      return compose(from, toList)(input);
+    }).reduce(function (ret, input) {
+      return ret.concat(input);
+    });
+    return filter(function (x) {
+      return values.every(function (y) {
+        return comparator(x, y) !== 0;
+      });
+    });
+  };
+};
+
+/**
+ * Continously ignore elements at front, if `predicate` returns thruthy.
+ *
+ * @param {function(any,any):boolean} predicate - Whether the element at front should be ignored.
+ * This function will not be called when first element results in falsey.
+ */
+var skipWhile = function skipWhile(predicate) {
   return function (subscribe) {
     return function (onNext) {
       var shouldSkip = true;
       var count = -1;
       return subscribe(function (element, key) {
-        if (shouldSkip && f(element, key)) return true;
+        if (shouldSkip && predicate(element, key)) return true;
         shouldSkip = false;
         count += 1;
         return onNext(element, count);
       });
     };
   };
-});
+};
 
-var skip$1 = (function () {
+/**
+ * Skip first given number of elements.
+ *
+ * @param {number} num - Number of elements should be ignored.
+ */
+var skip$1 = function skip$1() {
   var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
   if (!num) return identity; // do not drop any element
@@ -503,12 +582,20 @@ var skip$1 = (function () {
   return skipWhile(function (_, i) {
     return i < n;
   });
-});
+};
 
-var skipRight$1 = (function () {
+/**
+ * Skip given number of elements at the end of sequenz.
+ *
+ * @param {number} num - Number of elements that should be skipped at the end.
+ */
+var skipRight$1 = function skipRight$1() {
   var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
   if (num < 1) return identity;
+  if (num === Infinity) return function () {
+    return truthy;
+  };
   var n = Math.floor(num);
   var cache = new Array(n);
   var count = -1;
@@ -527,9 +614,15 @@ var skipRight$1 = (function () {
       });
     };
   };
-});
+};
 
-var skipRightWhile$1 = (function () {
+/**
+ * Skip some elements at the end, where each results in truthy value from `predicate` function.
+ * These elements should be continuous one after another.
+ *
+ * @param {function(any,any):boolean} predicate - Whether element should be ignored.
+ */
+var skipRightWhile$1 = function skipRightWhile$1() {
   var predicate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
 
   var cache = [];
@@ -551,18 +644,6 @@ var skipRightWhile$1 = (function () {
         return doNext(element);
       });
     };
-  };
-});
-
-/**
- * Iterate over each element in `sequenz`
- *
- * @param {function(any,any):boolean} f - Callback that will be triggered for every element in
- * `sequenz`. Returning `false` will terminate the iteration.
- */
-var each = function each(f) {
-  return function (subscribe) {
-    return subscribe(f);
   };
 };
 
@@ -619,19 +700,38 @@ var fill = function fill(value, start, end) {
   };
 };
 
-var find = (function (predicate, fromIndex) {
+/**
+ * Find the first value where `predicate` returns true.
+ *
+ * @param {function(any,any):boolean} predicate - Predicate function to determine if value has been
+ * found.
+ * @param {number} fromIndex - Index to start searching.
+ */
+var find = function find(predicate, fromIndex) {
   return function (subscribe) {
     return findOrigin(predicate, fromIndex)(subscribe).value;
   };
-});
+};
 
-var findLast = (function (predicate, fromIndex) {
+/**
+ * Find the last value where `predicate` returns true.
+ *
+ * @param {function(any,any):boolean} predicate - Predicate function to determine if value has been
+ * found.
+ * @param {number} fromIndex - Index to start searching.
+ */
+var findLast = function findLast(predicate, fromIndex) {
   return function (subscribe) {
     return findLastOrigin(predicate, fromIndex)(subscribe).value;
   };
-});
+};
 
-var firstOrDefault = (function (defaultValue) {
+/**
+ * Return the first element or `defaultValue` if sequenz is empty.
+ *
+ * @param {any} defaultValue - Value that will be returned if sequenz is empty.
+ */
+var firstOrDefault = function firstOrDefault(defaultValue) {
   return function (subscribe) {
     var ret = defaultValue;
     subscribe(function (element) {
@@ -639,11 +739,14 @@ var firstOrDefault = (function (defaultValue) {
     });
     return ret;
   };
-});
+};
 
-var first = (function () {
+/**
+ * Find the first value in sequenz. `undefined` will be returned if sequenz is empty.
+ */
+var first = function first() {
   return firstOrDefault(undefined);
-});
+};
 
 var isMatch = function isMatch(properties) {
   var keys = Object.keys(properties);
@@ -668,9 +771,15 @@ var where = function where(properties) {
   return filter(isMatch(properties));
 };
 
-var findWhere = (function (properties) {
+/**
+ * Find the first value in sequenz where it matches the given `properties`. Internally, this API
+ * uses `where` to look for matched value.
+ *
+ * @param {object} properties - Key-pair values that should be used for searching.
+ */
+var findWhere = function findWhere(properties) {
   return compose(where(properties), first());
-});
+};
 
 /**
  * Recursively flatten elements in `sequenz` up to `depth` times.
@@ -714,7 +823,7 @@ var flattenDeep = function flattenDeep() {
   return flattenDepth(Infinity);
 };
 
-var get = function get(object, property, receiver) {
+var get$1 = function get$1(object, property, receiver) {
   if (object === null) object = Function.prototype;
   var desc = Object.getOwnPropertyDescriptor(object, property);
 
@@ -724,7 +833,7 @@ var get = function get(object, property, receiver) {
     if (parent === null) {
       return undefined;
     } else {
-      return get(parent, property, receiver);
+      return get$1(parent, property, receiver);
     }
   } else if ("value" in desc) {
     return desc.value;
@@ -829,20 +938,93 @@ var fromPairs = (function () {
   };
 });
 
-var pickBy = (function (f) {
+/**
+ * Keep only the elements that `predicate` returns true. Unlike `filter` API, this API will keep the
+ * origin `key` value unchanged.
+ *
+ * @param {function(any,any):boolean} predicate - Check if value should be kept or ignored.
+ */
+var pickBy = function pickBy(predicate) {
   return function (subscribe) {
     return function (onNext) {
       return subscribe(function (element, key) {
-        if (f(element, key)) return onNext(element, key);
+        if (predicate(element, key)) return onNext(element, key);
         return true;
       });
     };
   };
-});
+};
 
-var functions = (function () {
+/**
+ * Filter sequenz to only keep elements that are functions. Key values will be kept in this API.
+ * Internally, it uses `pickBy`.
+ */
+var functions = function functions() {
   return pickBy(isFunction);
-});
+};
+
+/**
+ * Group elements in sequenz into different groups, each has a uniq `key` generated by `iteratee`.
+ * The result of this API is a new sequenz containing the key-value pairs, where value is a list of
+ * all elements that sharing the same `key`. Considering each `value` as an internal sequenz, a
+ * second param can be passed in. This param will be used to generate a sequenz transformer that is
+ * applied to each internal sequenz. It can be used to pick up only the required elements, and
+ * terminate the sequenz iteration as soon as possible.
+ *
+ * @param {function(any,any):string|string} iteratee - Use to calculate the `key` value out of each
+ * element. If a string is given, it will be used as the property name to get `key` from each
+ * element.
+ * @param {function(string):function} transformGen - Function that will generate transformer using
+ * given `key`. If not provided, no transform will be applied to each internal sequenz.
+ */
+var groupBy = function groupBy(iteratee) {
+  var transformGen = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : empty;
+
+  var mapFn = isString(iteratee) ? function (element) {
+    return element[iteratee];
+  } : iteratee;
+  return function (subscribe) {
+    return function (onNext) {
+      var pipeline = {};
+      var result = {};
+      var total = 0;
+      subscribe(function (element, i) {
+        var key = mapFn(element, i);
+        if (pipeline[key] === undefined) {
+          var transform = transformGen(key);
+          total += 1;
+          pipeline[key] = function (internalSubscribe) {
+            var receiveNext = void 0;
+            var count = -1;
+            /*
+             * `intervalSubscribe` returns too early, even before any element has been consumed.
+             * However, since it returns a reference (i.e. an array), this reference will not be
+             * changed when later more elements have been added.
+             * Thus, just need to cache the `onNext` function `toList` used, so that elements later
+             * can continously push in.
+             *
+             * This is quite a tricky implementation, as it uses sync solution to handle async
+             * scenario.
+             */
+            result[key] = internalSubscribe(function (internalOnNext) {
+              receiveNext = internalOnNext;
+            });
+            return function (value) {
+              count += 1;
+              if (receiveNext(value, count) === false) {
+                total -= 1;
+                pipeline[key] = null;
+              }
+            };
+          }(transform ? compose(transform, toList) : toList);
+        }
+        if (pipeline[key]) pipeline[key](element);
+        return total !== 0;
+      });
+      return fromObject(result)(onNext);
+    };
+  };
+};
 
 /**
  * Reduce a `sequenz` to one final value by applying the `iteratee` against an accumulator and each
@@ -879,23 +1061,6 @@ var reduce = function reduce(iteratee, initial) {
     return result;
   };
 };
-
-var groupBy = (function (iteratee) {
-  var mapFn = isString(iteratee) ? function (element) {
-    return element[iteratee];
-  } : iteratee;
-  return function (subscribe) {
-    return reduce(function (previous, element) {
-      var key = mapFn(element);
-      if (Object.prototype.hasOwnProperty.call(previous, key)) {
-        previous[key].push(element);
-      } else {
-        previous[key] = [element]; // eslint-disable-line no-param-reassign
-      }
-      return previous;
-    }, {})(subscribe);
-  };
-});
 
 /**
  * Consume the `sequenz`, use `iteratee` to generate `key` for each element, and returns an object
@@ -945,69 +1110,76 @@ var intercept = function intercept(f) {
   };
 };
 
-var intersectionOrigin = (function () {
-  for (var _len = arguments.length, inputs = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    inputs[_key - 2] = arguments[_key];
-  }
-
+/**
+ * High oder function that acts similarly as `sequenz.intersection`, except that it first accepts an
+ * iteratee function that will be used to map result values, before they get compared. The result
+ * element will still be the original value.
+ *
+ * @param {function(any):any} [iteratee=identity] Iteratee function that will be used to calculate
+ * value for comparation.
+ */
+var intersectionBy = function intersectionBy() {
   var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
-  var comparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equal;
+  return function () {
+    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+      inputs[_key] = arguments[_key];
+    }
 
-  var values = void 0;
-  if (iteratee === identity) {
-    values = inputs.map(function (input) {
+    var map = new Map$1();
+    var length = inputs.length;
+    inputs.forEach(function (input) {
+      compose(from, each(function (x) {
+        var element = iteratee(x);
+        if (!map.has(element)) {
+          map.set(element, 1);
+        } else {
+          map.set(element, map.get(element) + 1);
+        }
+      }))(input);
+    });
+    return filter(function (x) {
+      var element = iteratee(x);
+      return map.get(element) === length;
+    });
+  };
+};
+
+/**
+ * Create a sequenz of values that only appears in ALL other given arrays.
+ *
+ * @param {...Array} inputs - The values to include. If given is not array, it will be converted to
+ * based on implementation of `sequenz.from`.
+ */
+var intersection = intersectionBy(identity);
+
+/**
+ * High oder function that acts similarly as `sequenz.intersection`, except that it first
+ * accepts a customized comparator function that will be used to compara values.
+ *
+ * @param {function(any,any):number} [comparator=equal] Comparator function that will be used to
+ * compara alues. Comparator should return `0` when two values are equal.
+ */
+var intersectionWith = function intersectionWith(comparator) {
+  if (comparator === undefined) return intersection;
+  return function () {
+    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+      inputs[_key] = arguments[_key];
+    }
+
+    var length = inputs.length;
+    var values = inputs.map(function (input) {
       if (isArray(input)) return input;
       return compose(from, toList)(input);
     }).reduce(function (ret, input) {
       return ret.concat(input);
     });
     return filter(function (x) {
-      return values.some(function (y) {
-        return comparator(x, y);
-      });
+      return values.filter(function (y) {
+        return comparator(x, y) === 0;
+      }).length === length;
     });
-  }
-  values = inputs.map(function (input) {
-    return compose(from, map(iteratee), toList)(input);
-  }).reduce(function (ret, value) {
-    return ret.concat(value);
-  });
-  return filter(function (x) {
-    return values.some(function (y) {
-      return comparator(iteratee(x), y);
-    });
-  });
-});
-
-var intersectionWith = (function () {
-  var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : equal;
-  return function () {
-    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
-      inputs[_key] = arguments[_key];
-    }
-
-    return intersectionOrigin.apply(undefined, [undefined, comparator].concat(inputs));
   };
-});
-
-var intersection = (function () {
-  for (var _len = arguments.length, input = Array(_len), _key = 0; _key < _len; _key++) {
-    input[_key] = arguments[_key];
-  }
-
-  return intersectionWith.apply(undefined, [undefined].concat(input));
-});
-
-var intersectionBy = (function () {
-  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
-  return function () {
-    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
-      inputs[_key] = arguments[_key];
-    }
-
-    return intersectionOrigin.apply(undefined, [iteratee, undefined].concat(inputs));
-  };
-});
+};
 
 /**
  * Creates a new `sequenz` where element and key are key and element in previous `sequenz`
@@ -1097,6 +1269,23 @@ var log = function log() {
 };
 
 /**
+ * Creates a new `sequenz` of values by running each element of given `sequenz` with `iteratee`,
+ * while keeping the `key` unmodified. The `iteratee` is invoked with two arguments: `element` and
+ * `key`.
+ *
+ * @param {function(any,any):any} iteratee - Function to create new `element`.
+ */
+var map = function map(iteratee) {
+  return function (subscribe) {
+    return function (onNext) {
+      return subscribe(function (element, key) {
+        return onNext(iteratee(element, key), key);
+      });
+    };
+  };
+};
+
+/**
  * Computes the maximum value of `sequenz`, where rank of each element is calculated using
  * given `iteratee`. If `sequenz` is empty, `undefined` will be returned.
  *
@@ -1145,7 +1334,15 @@ var min = function min() {
   };
 };
 
-var takeRight = (function () {
+/**
+ * Take given number of elements counting from right hand side of sequenz.
+ *
+ * [NOTICE]: This API needs to first iterate over ALL elements in sequenz to produce a new sequenz
+ * containing only the required elements.
+ *
+ * @param {number} num - Number of elements to receive.
+ */
+var takeRight = function takeRight() {
   var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
   return function (subscribe) {
     return function (onNext) {
@@ -1173,14 +1370,21 @@ var takeRight = (function () {
       return doNext(0, shift, shift - length);
     };
   };
-});
+};
 
-var nth = (function () {
+/**
+ * Find the nth element in sequenz. `undefined` will be returned if sequenz does not have `n`
+ * elements.
+ *
+ * @param {number} n - Index for element. If negative number is provided, it will be count from
+ * right to left.
+ */
+var nth = function nth() {
   var n = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
   if (n >= 0) return compose(skip$1(n - 1), first());
   return compose(takeRight(n * -1), first());
-});
+};
 
 /**
  * Group key and element into an array [key, element].
@@ -1197,14 +1401,19 @@ var pairs = function pairs() {
   };
 };
 
-var partition = (function (predicate) {
-  return function (subscribe) {
-    return reduce(function (result, element, key) {
-      if (predicate(element, key)) result[0].push(element);else result[1].push(element);
-      return result;
-    }, [[], []])(subscribe);
-  };
-});
+/**
+ * Split sequenz into two part, one containing only the sequenz that `predicate` returns truthy
+ * result, the other containing only the sequenz that results in falsey value.
+ *
+ * @param {function(any,any):boolean} predicate - Function to map each element to boolean result.
+ * @param {function(string):function} transformGen - Function to generate transformers. More info
+ * can be found in `groupBy` API.
+ */
+var partition = function partition(predicate, transformGen) {
+  return groupBy(function (element, i) {
+    return predicate(element, i) ? 'truthy' : 'falsey';
+  }, transformGen);
+};
 
 /**
  * Extracts specified `property` out of each element and construct a new `sequenz`. The `key` will
@@ -1338,7 +1547,12 @@ var size = function size() {
   };
 };
 
-var takeWhile = (function () {
+/**
+ * Take elements as long as each of then result in truthy value from `predicate`.
+ *
+ * @param {function(any,any):boolean} predicate - Determine whether a value should be kept.
+ */
+var takeWhile = function takeWhile() {
   var predicate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
   return function (subscribe) {
     return function (onNext) {
@@ -1348,14 +1562,19 @@ var takeWhile = (function () {
       });
     };
   };
-});
+};
 
-var take = (function () {
+/**
+ * Take given number of elements in sequenz.
+ *
+ * @param {number} num - Number of elements to take in sequenz.
+ */
+var take = function take() {
   var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
   return takeWhile(function (_, idx) {
     return idx < num;
   });
-});
+};
 
 /**
  * Creates a slice of `sequenz` from `start` up to, but not including, `end`
@@ -1366,7 +1585,7 @@ var take = (function () {
 var slice = function slice() {
   var start = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
   var end = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
-  return compose(skip$1(start), take(end - start));
+  return compose(start >= 0 ? skip$1(start) : takeRight(-1 * start), end >= 0 ? take(end - start) : skipRight$1(-1 * end));
 };
 
 /**
@@ -1421,7 +1640,13 @@ var tail = function tail() {
   return skip$1(1);
 };
 
-var takeRightWhile = (function () {
+/**
+ * Take elements from right hand side as long as the elements result in truthy value from
+ * `predicate`.
+ *
+ * @param {function(any,any):boolean} predicate - Predicate function to check each element.
+ */
+var takeRightWhile = function takeRightWhile() {
   var predicate = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
   return function (subscribe) {
     return function (onNext) {
@@ -1433,160 +1658,218 @@ var takeRightWhile = (function () {
       return fromIterable(cache)(onNext);
     };
   };
-});
+};
 
-var uniqOrigin = (function () {
+/**
+ * This method is like `sequenz.uniq`, except that it accepts `iteratee` which is invoked for each
+ * element in sequenz to generate the criterion by which uniqueness is computed. The order is
+ * determined by the order they occur in the array.
+ *
+ * The iteratee is invoked with one argument: `value`.
+ *
+ * @param {function(any):any} iteratee - Iteratee invoked for each element.
+ */
+var uniqBy = function uniqBy() {
   var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
-  var comparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equal;
+
+  var set = new Set$1();
+  return filter(function (x) {
+    var element = iteratee(x);
+    var result = set.has(element);
+    if (result) return false;
+    set.add(element);
+    return true;
+  });
+};
+
+/**
+ * High oder function that acts similarly as `sequenz.union`, except that it first accepts an
+ * iteratee function that will be used to map result values, before they get compared. The result
+ * element will still be the original value.
+ *
+ * @param {function(any):any} [iteratee=identity] Iteratee function that will be used to calculate
+ * value for comparation.
+ */
+var unionBy = function unionBy() {
+  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
+  return function () {
+    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+      inputs[_key] = arguments[_key];
+    }
+
+    var list = inputs.map(function (input) {
+      /** todo: consider following an API, as it used in many places, such as `intersection` */
+      if (isArray(input)) return input;
+      return compose(from, toList)(input);
+    }).reduce(function (prev, curr) {
+      return prev.concat(curr);
+    });
+    return compose(concat(list), uniqBy(iteratee));
+  };
+};
+
+/**
+ * Create a sequenz of values that only appears in ANY given array or sequenz, each element will
+ * only appear once.
+ *
+ * @param {...Array} inputs - The values to include. If given is not array, it will be converted to
+ * based on implementation of `sequenz.from`.
+ */
+var union = unionBy(identity);
+
+/**
+ * This method is like `sequenz.uniq`, except that it accepts `comparator` which is invoked for each
+ * element in sequenz to compare with all previous elements. The `comparator` will only provides `0`
+ * if two elements are considered equal.
+ *
+ * @param {function(any,any):number} comparator - Comparator invoked for comparing elements, returns
+ * `0` if two elements are equal.
+ */
+var uniqWith = function uniqWith() {
+  var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : equal;
   return function (subscribe) {
     var cache = [];
     return function (onNext) {
       return subscribe(function (element) {
         if (cache.some(function (value) {
-          return comparator(iteratee(value), iteratee(element));
+          return comparator(value, element) === 0;
         })) return true;
         cache.push(element);
         return onNext(element, cache.length - 1);
       });
     };
   };
-});
+};
 
-var unionOrigin = (function () {
-  for (var _len = arguments.length, inputs = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-    inputs[_key - 2] = arguments[_key];
-  }
-
-  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
-  var comparator = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : equal;
-
-  var values = inputs.map(function (input) {
-    if (isArray(input)) return input;
-    return compose(from, toList)(input);
-  }).reduce(function (prev, curr) {
-    return prev.concat(curr);
-  });
-  return compose(concat(values), uniqOrigin(iteratee, comparator));
-});
-
-var union = (function () {
-  for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
-    inputs[_key] = arguments[_key];
-  }
-
-  return unionOrigin.apply(undefined, [undefined, undefined].concat(inputs));
-});
-
-var unionBy = (function (iteratee) {
+/**
+ * High oder function that acts similarly as `sequenz.union`, except that it first
+ * accepts a customized comparator function that will be used to compara values.
+ *
+ * @param {function(any,any):number} [comparator=equal] Comparator function that will be used to
+ * compara alues. Comparator should return `0` when two values are equal.
+ */
+var unionWith = function unionWith() {
+  var comparator = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : equal;
   return function () {
     for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
       inputs[_key] = arguments[_key];
     }
 
-    return unionOrigin.apply(undefined, [iteratee, undefined].concat(inputs));
+    var values = inputs.map(function (input) {
+      if (isArray(input)) return input;
+      return compose(from, toList)(input);
+    }).reduce(function (prev, curr) {
+      return prev.concat(curr);
+    });
+    return compose(concat(values), uniqWith(comparator));
   };
-});
+};
 
-var unionWith = (function (comparator) {
-  return function () {
-    for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
-      inputs[_key] = arguments[_key];
-    }
+/**
+ * Creates a duplicate-free version of an array. The order of result values is determined by The
+ * order they occur in the array.
+ */
+var uniq = function uniq() {
+  return uniqBy(identity);
+};
 
-    return unionOrigin.apply(undefined, [undefined, comparator].concat(inputs));
-  };
-});
-
-var uniq = (function () {
-  return uniqOrigin();
-});
-
-var uniqBy = (function (iteratee) {
-  return uniqOrigin(iteratee);
-});
-
-var uniqWith = (function (comparator) {
-  return uniqOrigin(undefined, comparator);
-});
-
-var unzipWith = (function (iteratee) {
+/**
+ * Create a new sequenz containing lists, where nth list in new sequenz containing all nth values
+ * in each element from previous sequenz. The `length` will be decided using the `length` of first
+ * element in previous sequenz. It will be considered as a single element list, if element is not
+ * an array.
+ * @param {function(number):function} transformGen - Function that will generate transformer using
+ * given `index`. If not provided, no transform will be applied to each internal sequenz.
+ */
+var unzip = function unzip(transformGen) {
   return function (subscribe) {
     return function (onNext) {
-      var cache = void 0;
-      subscribe(function (element) {
-        if (!isArray(element)) throw new Error('Element is not an array!');
-        if (!cache) cache = new Array(element.length);
-        for (var i = 0; i < element.length; i += 1) {
-          if (!cache[i]) cache[i] = [iteratee(element[i])];else cache[i].push(iteratee(element[i]));
+      var result = [];
+      var pipeline = void 0;
+      var count = 0;
+      subscribe(function (element, i) {
+        var list = [].concat(element);
+        if (!pipeline) {
+          if (list.length === 0) return false;
+          pipeline = list.map(function (ele, index) {
+            return function (internalSubscribe) {
+              var cache = void 0;
+              result[index] = internalSubscribe(function (internalOnNext) {
+                cache = internalOnNext;
+              });
+              return function (value, key, pipelineIndex) {
+                if (cache(value, key) === false) {
+                  pipeline[pipelineIndex] = null;
+                  count -= 1;
+                }
+              };
+            }(transformGen ? compose(transformGen(index), toList) : toList);
+          });
+          count = pipeline.length;
         }
+        pipeline.forEach(function (f, index) {
+          if (!f) return;
+          f(list[index], i, index);
+        });
+        return count !== 0;
       });
-      return fromIterable(cache)(onNext);
+      return fromIterable(result)(onNext);
     };
   };
-});
+};
 
-var unzip = (function () {
-  return unzipWith(identity);
-});
-
-var without = (function () {
+/**
+ * Create a sequenz excluding all passed in values via parameters.
+ *
+ * @param {...any} values - Values that should be excluded.
+ */
+var without = function without() {
   for (var _len = arguments.length, values = Array(_len), _key = 0; _key < _len; _key++) {
     values[_key] = arguments[_key];
   }
 
   return difference(values);
-});
+};
 
-var zipWith = (function () {
-  for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    values[_key - 1] = arguments[_key];
+/**
+ * Zip existing arrays with sequenz. Each element in new created sequenz will be an array,
+ * containing elements from existing arrays and sequenz, where first element will be from
+ * sequenz, the rest will be from existing arrays, with order kept.
+ *
+ * @param {...any[]} inputs - list of arrays.
+ */
+var zip = function zip() {
+  for (var _len = arguments.length, inputs = Array(_len), _key = 0; _key < _len; _key++) {
+    inputs[_key] = arguments[_key];
   }
 
-  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
   return function (subscribe) {
     return function (onNext) {
-      var inputs = [undefined].concat(values);
       return subscribe(function (element, i) {
-        return onNext(iteratee.apply(null, inputs.map(function (list, index) {
-          return index ? list[i] : element;
-        })), i);
+        var result = [element].concat(inputs.map(function (input) {
+          return input[i];
+        }));
+        return onNext(result, i);
       });
     };
   };
-});
+};
 
-var zip = (function () {
-  for (var _len = arguments.length, input = Array(_len), _key = 0; _key < _len; _key++) {
-    input[_key] = arguments[_key];
-  }
-
-  return zipWith.apply(undefined, [undefined].concat(input));
-});
-
-var zipObjectWith = (function () {
-  for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    values[_key - 1] = arguments[_key];
-  }
-
-  var iteratee = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : identity;
+/**
+ * This method is similar as `fromPairs` except that the first param here is an array of pre-defined
+ * keys.
+ *
+ * @param {string[]} keys - An array of keys
+ */
+var zipObject = function zipObject(keys) {
   return function (subscribe) {
     return function (onNext) {
-      return subscribe(function (key, i) {
-        return onNext(iteratee.apply(null, values.map(function (list) {
-          return list[i];
-        })), key);
+      return subscribe(function (element, i) {
+        return keys.length > i ? onNext(element, keys[i]) : false;
       });
     };
   };
-});
-
-var zipObject = (function () {
-  for (var _len = arguments.length, input = Array(_len), _key = 0; _key < _len; _key++) {
-    input[_key] = arguments[_key];
-  }
-
-  return zipObjectWith.apply(undefined, [undefined].concat(input));
-});
+};
 
 /* ---------- Helpers ---------- */
 
@@ -1598,6 +1881,8 @@ exports.string = string;
 exports.fromObject = fromObject;
 exports.fromIterable = fromIterable;
 exports.toList = toList;
+exports.toObject = toObject;
+exports.toString = toString;
 exports.chunk = chunk;
 exports.compact = compact;
 exports.concat = concat;
@@ -1679,10 +1964,11 @@ exports.uniq = uniq;
 exports.uniqBy = uniqBy;
 exports.uniqWith = uniqWith;
 exports.unzip = unzip;
-exports.unzipWith = unzipWith;
 exports.where = where;
 exports.without = without;
 exports.zip = zip;
 exports.zipObject = zipObject;
-exports.zipObjectWith = zipObjectWith;
-exports.zipWith = zipWith;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

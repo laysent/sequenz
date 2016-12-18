@@ -1,13 +1,14 @@
 {
   "name": "sequenz-js",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "super tiny, lodash-like lazy evaluation library, with cherry-picking!",
-  "main": "./lib/index.js",
+  "main": "./sequenz.js",
   "jsnext:main": "./src/index.js",
   "scripts": {
     "benchmark": "node ./benchmark/index.js",
-    "build": "babel ./src -d ./ && rollup -c ./build/rollup.config.js",
-    "clean": "del *.js",
+    "build:npm": "babel ./src -d ./",
+    "build:git": "rollup -c ./build/rollup.config.js && uglifyjs sequenz.js --source-map sequenz.min.js.map --screw-ie8 -o sequenz.min.js -m -c",
+    "clean": "del *.js *.map",
     "doc": "jsdoc ./src -d ./docs",
     "test": "karma start ./build/karma.config.js --single-run",
     "test:watch": "karma start ./build/karma.config.js",
@@ -48,6 +49,7 @@
     "lodash": "^4.17.2",
     "rollup": "^0.36.4",
     "rollup-plugin-babel": "^2.6.1",
+    "uglify-js": "^2.7.5",
     "webpack": "^1.13.3"
   }
 }

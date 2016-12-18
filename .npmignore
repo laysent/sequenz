@@ -8,3 +8,5 @@ typings
 .babelrc
 .eslintrc
 jsconfig.json
+sequenz.min.js
+sequenz.min.js.map
