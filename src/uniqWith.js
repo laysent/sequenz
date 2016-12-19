@@ -1,4 +1,6 @@
 import { equal } from './utils';
+import some from './some';
+import list from './list';
 
 /**
  * This method is like `sequenz.uniq`, except that it accepts `comparator` which is invoked for each
@@ -11,7 +13,7 @@ import { equal } from './utils';
 const uniqWith = (comparator = equal) => subscribe => {
   const cache = [];
   return onNext => subscribe((element) => {
-    if (cache.some(value => comparator(value, element) === 0)) return true;
+    if (list(some(value => comparator(value, element) === 0))(cache)) return true;
     cache.push(element);
     return onNext(element, cache.length - 1);
   });

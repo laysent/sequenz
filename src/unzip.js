@@ -1,6 +1,9 @@
 import compose from './compose';
 import toList from './toList';
 import fromIterable from './fromIterable';
+import list from './list';
+import map from './map';
+import each from './each';
 
 /**
  * Create a new sequenz containing lists, where nth list in new sequenz containing all nth values
@@ -15,10 +18,10 @@ const unzip = (transformGen) => subscribe => onNext => {
   let pipeline;
   let count = 0;
   subscribe((element, i) => {
-    const list = [].concat(element);
+    const arr = [].concat(element);
     if (!pipeline) {
-      if (list.length === 0) return false;
-      pipeline = list.map((ele, index) => (function (internalSubscribe) {
+      if (arr.length === 0) return false;
+      pipeline = list(map((ele, index) => (function (internalSubscribe) {
         let cache;
         result[index] = internalSubscribe(internalOnNext => { cache = internalOnNext; });
         return (value, key, pipelineIndex) => {
@@ -27,13 +30,13 @@ const unzip = (transformGen) => subscribe => onNext => {
             count -= 1;
           }
         };
-      }(transformGen ? compose(transformGen(index), toList) : toList)));
+      }(transformGen ? compose(transformGen(index), toList) : toList))))(arr);
       count = pipeline.length;
     }
-    pipeline.forEach((f, index) => {
+    each((f, index) => {
       if (!f) return;
-      f(list[index], i, index);
-    });
+      f(arr[index], i, index);
+    })(fromIterable(pipeline));
     return count !== 0;
   });
   return fromIterable(result)(onNext);

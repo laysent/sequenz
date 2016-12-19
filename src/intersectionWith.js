@@ -4,6 +4,9 @@ import from from './from';
 import toList from './toList';
 import compose from './compose';
 import filter from './filter';
+import map from './map';
+import reduce from './reduce';
+import list from './list';
 
 /**
  * High oder function that acts similarly as `sequenz.intersection`, except that it first
@@ -16,11 +19,14 @@ const intersectionWith = (comparator) => {
   if (comparator === undefined) return intersection;
   return (...inputs) => {
     const length = inputs.length;
-    const values = inputs.map((input) => {
-      if (isArray(input)) return input;
-      return compose(from, toList)(input);
-    }).reduce((ret, input) => ret.concat(input));
-    return filter(x => values.filter(y => comparator(x, y) === 0).length === length);
+    const values = list(
+      map((input) => {
+        if (isArray(input)) return input;
+        return compose(from, toList)(input);
+      }),
+      reduce((ret, input) => ret.concat(input))
+    )(inputs);
+    return filter(x => list(filter(y => comparator(x, y) === 0))(values).length === length);
   };
 };
 

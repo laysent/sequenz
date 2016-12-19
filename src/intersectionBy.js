@@ -16,19 +16,22 @@ import { identity } from './utils';
 const intersectionBy = (iteratee = identity) => (...inputs) => {
   const map = new Map();
   const length = inputs.length;
-  inputs.forEach(input => {
-    compose(
-      from,
-      each((x) => {
-        const element = iteratee(x);
-        if (!map.has(element)) {
-          map.set(element, 1);
-        } else {
-          map.set(element, map.get(element) + 1);
-        }
-      })
-    )(input);
-  });
+  compose(
+    from,
+    each((input) => {
+      compose(
+        from,
+        each((x) => {
+          const element = iteratee(x);
+          if (!map.has(element)) {
+            map.set(element, 1);
+          } else {
+            map.set(element, map.get(element) + 1);
+          }
+        })
+      )(input);
+    })
+  )(inputs);
   return filter(x => {
     const element = iteratee(x);
     return map.get(element) === length;

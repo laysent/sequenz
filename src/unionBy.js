@@ -4,6 +4,10 @@ import compose from './compose';
 import from from './from';
 import toList from './toList';
 import concat from './concat';
+import list from './list';
+import map from './map';
+import reduce from './reduce';
+
 
 /**
  * High oder function that acts similarly as `sequenz.union`, except that it first accepts an
@@ -14,13 +18,15 @@ import concat from './concat';
  * value for comparation.
  */
 const unionBy = (iteratee = identity) => (...inputs) => {
-  const list = inputs.map(input => {
-    /** todo: consider following an API, as it used in many places, such as `intersection` */
-    if (isArray(input)) return input;
-    return compose(from, toList)(input);
-  }).reduce((prev, curr) => prev.concat(curr));
+  const values = list(
+    map((input) => {
+      if (isArray(input)) return input;
+      return compose(from, toList)(input);
+    }),
+    reduce((prev, curr) => prev.concat(curr))
+  )(inputs);
   return compose(
-    concat(list),
+    concat(values),
     uniqBy(iteratee)
   );
 };

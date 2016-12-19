@@ -15,12 +15,15 @@ import { identity } from './utils';
  */
 const differenceBy = (iteratee = identity) => (...inputs) => {
   const set = new Set();
-  inputs.forEach(input => {
-    compose(
-      from,
-      each((element) => { set.add(iteratee(element)); })
-    )(input);
-  });
+  compose(
+    from,
+    each((input) => {
+      compose(
+        from,
+        each((element) => { set.add(iteratee(element)); })
+      )(input);
+    })
+  )(inputs);
   return filter(x => {
     const element = iteratee(x);
     return !set.has(element);

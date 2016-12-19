@@ -4,6 +4,9 @@ import from from './from';
 import toList from './toList';
 import concat from './concat';
 import uniqWith from './uniqWith';
+import list from './list';
+import map from './map';
+import reduce from './reduce';
 
 /**
  * High oder function that acts similarly as `sequenz.union`, except that it first
@@ -13,10 +16,13 @@ import uniqWith from './uniqWith';
  * compara alues. Comparator should return `0` when two values are equal.
  */
 const unionWith = (comparator = equal) => (...inputs) => {
-  const values = inputs.map((input) => {
-    if (isArray(input)) return input;
-    return compose(from, toList)(input);
-  }).reduce((prev, curr) => prev.concat(curr));
+  const values = list(
+    map((input) => {
+      if (isArray(input)) return input;
+      return compose(from, toList)(input);
+    }),
+    reduce((prev, curr) => prev.concat(curr))
+  )(inputs);
   return compose(
     concat(values),
     uniqWith(comparator)

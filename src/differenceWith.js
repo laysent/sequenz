@@ -4,6 +4,10 @@ import from from './from';
 import toList from './toList';
 import compose from './compose';
 import filter from './filter';
+import every from './every';
+import list from './list';
+import map from './map';
+import reduce from './reduce';
 
 /**
  * High oder function that acts similarly as `sequenz.difference`, except that it first accepts a
@@ -15,11 +19,14 @@ import filter from './filter';
 const differenceWith = (comparator) => {
   if (comparator === undefined) return difference;
   return (...inputs) => {
-    const values = inputs.map((input) => {
-      if (isArray(input)) return input;
-      return compose(from, toList)(input);
-    }).reduce((ret, input) => ret.concat(input));
-    return filter(x => values.every(y => comparator(x, y) !== 0));
+    const values = list(
+      map((input) => {
+        if (isArray(input)) return input;
+        return compose(from, toList)(input);
+      }),
+      reduce((ret, input) => ret.concat(input))
+    )(inputs);
+    return filter(x => list(every(y => comparator(x, y) !== 0))(values));
   };
 };
 export default differenceWith;

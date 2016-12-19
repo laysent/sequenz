@@ -1,4 +1,6 @@
 import from from './from';
+import list from './list';
+import map from './map';
 
 /**
  * @param {...any} sequenzs - A list of elements, each will be iterated over and append to
@@ -7,7 +9,7 @@ import from from './from';
  */
 const concat = (...sequenzs) => subscribe => (onNext) => {
   const subscriptions = [subscribe].concat(
-    sequenzs.map(seq => (typeof seq === 'function' ? seq : from(seq))));
+    list(map(seq => (typeof seq === 'function' ? seq : from(seq))))(sequenzs));
   let count = -1;
   const subscriber = element => { count += 1; return onNext(element, count); };
   for (let i = 0; i < subscriptions.length; i += 1) {
