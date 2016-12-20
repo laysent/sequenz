@@ -2,7 +2,7 @@ const Benchmark = require('benchmark');
 const suite = new Benchmark.Suite;
 const lodash = require('lodash');
 const lazy = require('lazy.js');
-const sequenz = require('../lib/index');
+const sequenz = require('../sequenz');
 
 const hugeList = Array.from({ length: 1e5 }).map((_, i) => i);
 
