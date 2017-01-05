@@ -974,6 +974,11 @@ describe('uniq:', () => {
     const actual = sequenz.list(sequenz.uniq())(input);
     expect(actual).toEqual([1, 2, 3]);
   });
+  it('should only return elements one time (complex scenario)', () => {
+    const input = [1, 1, '1', '1', 0, 0, '0', '0', undefined, undefined, null, null, NaN, NaN];
+    const actual = sequenz.list(sequenz.uniq())(input);
+    expect(actual).toEqual([1, '1', 0, '0', undefined, null, NaN]);
+  });
 });
 
 describe('uniqBy:', () => {
